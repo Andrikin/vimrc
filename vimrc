@@ -41,16 +41,13 @@
 "Auto reload das configurações do vimrc
 "autocmd BufWritePost ~/.vim/vimrc source ~/.vim/vimrc
 
-"Map configuration:----------- Como Vim lê os comandos de Map: Comando {membro esquerdo} {membro direito} (Geralmente. Pode variar...)
-"Todos os comandos foram trocados para Normal mode (:nnoremap)
-
 "Criando leader command
 :let mapleader = ","
 
 "Auto Indentação, trazendo o cursor para o local original
 :inoremap <F3> <Esc>magg=G`az.:w<CR>
 :nnoremap <F3> magg=G`az.:w<CR>
-"Retirar modo highlight search
+"Retirar modo highlight search (Encontrar comando melhor)
 :nnoremap <silent> <F4> :nohlsearch<Bar>:echo<CR>
 
 "Shortcut para :%s///gc
@@ -81,7 +78,7 @@
 "Configuração troca de guias
 :nnoremap <TAB> gt
 :nnoremap <S-TAB> gT
-"Configuração para mudança de janela Vsplit
+"Configuração para PageUp PageDown
 :nnoremap J <c-f>
 :nnoremap K <c-b>
 "Final da linha/início da linha
@@ -93,26 +90,26 @@
 :nnoremap <leader>m M
 "Esc rápido no Insert Mode
 :inoremap jj <ESC>
-"Configuração autocomplete
-":inoremap <C-n> <C-p>
 "Abrir netrw
 ":nnoremap <leader>ex :tabnew<CR>:Ex<CR><bar>:set rnu<cr><bar>:set nu<cr>
 :nnoremap <leader>ex :tabnew<CR>:Ex<CR>
 "Sair sem salvar
 :nnoremap <leader>q :q<CR>
 :inoremap <leader>q <ESC>:q<CR>
+:nnoremap <leader>qa :qa<cr>
 "Configuração rápida do vimrc
 :nnoremap <leader>rc :tabedit $MYVIMRC<CR>
-"Transformar palavra para CapsLock
+"Transformar palavra para UpperCase
 :nnoremap <leader>u viwU
 "Source vimrc
 :nnoremap <leader>xo :source $MYVIMRC<cr><bar>:echom ".vimrc atualizado!"<cr>
-"Sair salvar salvando
+"Sair salvando arquivo
 :inoremap <leader>qs <Esc>ZZ
 :nnoremap <leader>qs ZZ
 "Salvar arquivo
 :inoremap <leader>s <Esc>:w<CR>
 :nnoremap <leader>s :w<CR>
+"Salvar todos os arquivos abertos (Tab)
 :nnoremap <leader>all :wa<CR>
 
 "Abbreviations
@@ -131,25 +128,6 @@
 :onoremap " i"
 :onoremap < i<
 :onoremap w iw
-
-"Tela centralizada (problema com movimentação de cursor para as laterais)
-":aug telaCentralizada
-":	au CursorMoved * :normal zz
-":	au CursorMovedI * :normal zz
-":aug END
-
-"Autocommands
-
-"Configurações para Python
-filetype indent plugin on
-
-"Highlight Cursor 
-
-"Configuração para Operator-Pending Mapping
-:onoremap ( i(
-:onoremap { i{
-:onoremap [ i[
-:onoremap " i"
 
 "Tela centralizada (problema com movimentação de cursor, zz impede que ele se
 "mova)
@@ -173,4 +151,4 @@ filetype indent plugin on
 highlight  Pmenu        ctermbg=white   ctermfg=black
 highlight  PmenuSel     ctermbg=blue    ctermfg=white   cterm=bold
 highlight  PmenuSbar    ctermbg=grey    ctermfg=grey
-highlight PmenuThumb ctermbg=blue ctermfg=blue
+highlight  PmenuThumb   ctermbg=blue    ctermfg=blue
