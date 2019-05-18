@@ -16,12 +16,13 @@
 :set tabstop=4
 :set shiftwidth=4
 :set softtabstop=4
-:set hlsearch
-:set mps+=<:>,=:;
 "Configaurações para search
 :set incsearch
 :set ignorecase
 :set smartcase
+"Configurações gerais
+:set hlsearch
+:set textwidth=0
 
 "Configuração para autoindent
 ":set autoindent
@@ -55,7 +56,7 @@
 
 "Enter para pular uma linha no modo normal
 :inoremap <CR> <C-m>
-:nnoremap <CR> o<esc>
+:nnoremap <CR> o<esc>cc
 "Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
 :nnoremap l w
 :nnoremap h b
@@ -83,13 +84,16 @@
 :nnoremap K <c-b>
 "Final da linha/início da linha
 :nnoremap H ^
+:vnoremap H ^
 :nnoremap L $
+:vnoremap L $
 "Ir para primeira linha/última linha
 :nnoremap <leader>k H
 :nnoremap <leader>j L
 :nnoremap <leader>m M
 "Esc rápido no Insert Mode
 :inoremap jj <ESC>
+:vnoremap vv <ESC>
 "Abrir netrw
 ":nnoremap <leader>ex :tabnew<CR>:Ex<CR><bar>:set rnu<cr><bar>:set nu<cr>
 :nnoremap <leader>ex :tabnew<CR>:Ex<CR>
@@ -107,8 +111,8 @@
 :inoremap <leader>qs <Esc>ZZ
 :nnoremap <leader>qs ZZ
 "Salvar arquivo
-:inoremap <leader>s <Esc>:w<CR>
-:nnoremap <leader>s :w<CR>
+:inoremap <leader>ss <Esc>:w<CR>
+:nnoremap <leader>ss :w<CR>
 "Salvar todos os arquivos abertos (Tab)
 :nnoremap <leader>all :wa<CR>
 
@@ -121,7 +125,7 @@
 :let @a = ',qw@a'
 :nnoremap <leader>aq @a
 
-"Configuração para Operator-Pending Mapping
+"Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
 :onoremap ( i(
 :onoremap { i{
 :onoremap [ i[
@@ -129,26 +133,19 @@
 :onoremap < i<
 :onoremap w iw
 
-"Tela centralizada (problema com movimentação de cursor, zz impede que ele se
-"mova)
-":aug telaCentralizada
-":	au CursorMoved * :normal zz
-":	au CursorMovedI * :normal zz
-":aug END
+"Functions
 
 "Autocommands
 
+"Match pair para arquivos vim
+:autocmd FileType vim :set mps+=<:>
+
 "Configurações para Python
-filetype indent plugin on
-
-"Highlight Cursor 
-"highlight Cursor gui=NONE ctermfg=Black ctermbg=White
-
-"Cursor bliking
-"set guicursor+=a:blinkon0
+:filetype indent plugin on
 
 "Configuração do popmenu completition
 highlight  Pmenu        ctermbg=white   ctermfg=black
-highlight  PmenuSel     ctermbg=blue    ctermfg=white   cterm=bold
-highlight  PmenuSbar    ctermbg=grey    ctermfg=grey
-highlight  PmenuThumb   ctermbg=blue    ctermfg=blue
+highlight  PmenuSel     ctermbg=darkgray    ctermfg=white   cterm=bold
+highlight  PmenuSbar    ctermbg=white    ctermfg=white
+highlight  PmenuThumb   ctermbg=darkgray    ctermfg=darkgray
+highlight  MatchParen   cterm=bold ctermbg=242    ctermfg=7
