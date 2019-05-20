@@ -1,6 +1,6 @@
-"Configurações do Vim-----------------------------------------------------------
+"Configurações do Vim
 
-"Configurações do Powerline----------------
+"Configurações do Powerline
 :set laststatus=2 "Always display the statusline in all windows
 :set showtabline=2 "Always display the tabline, even if there is only one tab
 :set noshowmode "Hide the default mode text (e.g. -- INSERT -- below the statusline)
@@ -24,10 +24,6 @@
 :set hlsearch
 :set textwidth=0
 
-"Configuração para autoindent
-":set autoindent
-":set smartindent
-
 "Esquema de Cor
 :colorscheme koehler
 
@@ -38,9 +34,6 @@
 :let g:netrw_liststyle = 0
 :let g:netrw_list_hide= '^\..*'
 :let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
-
-"Auto reload das configurações do vimrc
-"autocmd BufWritePost ~/.vim/vimrc source ~/.vim/vimrc
 
 "Criando leader command
 :let mapleader = ","
@@ -87,16 +80,18 @@
 :vnoremap H ^
 :nnoremap L $
 :vnoremap L $
+"Esc rápido no Insert Mode
+:inoremap jj <ESC>
+:vnoremap vv <ESC>
+
+"Atalhos usando map <leader>
+
 "Ir para primeira linha/última linha
 :nnoremap <leader>k H
 :nnoremap <leader>j L
 :nnoremap <leader>m M
-"Esc rápido no Insert Mode
-:inoremap jj <ESC>
-:vnoremap vv <ESC>
 "Abrir netrw
-":nnoremap <leader>ex :tabnew<CR>:Ex<CR><bar>:set rnu<cr><bar>:set nu<cr>
-:nnoremap <leader>ex :tabnew<CR>:Ex<CR>
+:nnoremap <leader>ex :Texplore<CR>
 "Sair sem salvar
 :nnoremap <leader>q :q<CR>
 :inoremap <leader>q <ESC>:q<CR>
@@ -135,10 +130,36 @@
 
 "Functions
 
+"Funções para compilar e rodar java/python
+:function CompilarJava()
+:	let l:nomeDoArquivo = expand('%:t')
+:	execute ":!javac " . l:nomeDoArquivo
+:endfunction
+
+
+:function RodarJava()
+:	let l:nomeDoArquivo = expand('%:t')
+"index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string
+"removendo .java
+:	execute ":!java " . l:nomeDoArquivo[:-6]
+:endfunction
+
+:function RodarPython()
+:	let l:nomeDoArquivo = expand('%:t')
+:	execute ":!python3 " . l:nomeDoArquivo
+:endfunction
+
+
 "Autocommands
 
 "Match pair para arquivos vim
 :autocmd FileType vim :set mps+=<:>
+:autocmd FileType vim :inoremap < <><Esc>i
+
+"Atalhos para arquivos específicos
+:autocmd FileType java :nnoremap <leader>cjava :call CompilarJava()<esc>
+:autocmd FileType java :nnoremap <leader>java :call RodarJava()<esc>
+:autocmd FileType python :nnoremap <leader>py :call RodarPython()<esc>
 
 "Configurações para Python
 :filetype indent plugin on
