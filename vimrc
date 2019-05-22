@@ -16,7 +16,7 @@
 :set tabstop=4
 :set shiftwidth=4
 :set softtabstop=4
-"Configaurações para search
+"Configurações para search
 :set incsearch
 :set ignorecase
 :set smartcase
@@ -101,17 +101,15 @@
 "Transformar palavra para UpperCase
 :nnoremap <leader>u viwU
 "Source vimrc
-:nnoremap <leader>xo :source $MYVIMRC<cr><bar>:echom ".vimrc atualizado!"<cr>
+:nnoremap <leader>xo :source $MYVIMRC<cr><bar>:echom "Arquivo vimrc atualizado!"<cr>
 "Sair salvando arquivo
 :inoremap <leader>qs <Esc>ZZ
 :nnoremap <leader>qs ZZ
 "Salvar arquivo
 :inoremap <leader>ss <Esc>:w<CR>
 :nnoremap <leader>ss :w<CR>
-"Salvar todos os arquivos abertos (Tab)
+"Salvar todos os arquivos abertos (Modo Tab)
 :nnoremap <leader>all :wa<CR>
-
-"Abbreviations
 
 "Atalho para autoQuotation
 :nnoremap <leader>qw cw""<esc>F"pf,w
@@ -133,7 +131,7 @@
 "Funções para compilar e rodar java/python
 :function CompilarJava()
 :	let l:nomeDoArquivo = expand('%:t')
-:	execute ":!javac " . l:nomeDoArquivo
+:	execute ":!clear&&javac " . l:nomeDoArquivo
 :endfunction
 
 
@@ -141,12 +139,12 @@
 :	let l:nomeDoArquivo = expand('%:t')
 "index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string
 "removendo .java
-:	execute ":!java " . l:nomeDoArquivo[:-6]
+:	execute ":!clear&&java " . l:nomeDoArquivo[:-6]
 :endfunction
 
 :function RodarPython()
 :	let l:nomeDoArquivo = expand('%:t')
-:	execute ":!python3 " . l:nomeDoArquivo
+:	execute ":!clear&&python3 " . l:nomeDoArquivo
 :endfunction
 
 
@@ -157,16 +155,17 @@
 :autocmd FileType vim :inoremap < <><Esc>i
 
 "Atalhos para arquivos específicos
-:autocmd FileType java :nnoremap <leader>cjava :call CompilarJava()<esc>
-:autocmd FileType java :nnoremap <leader>java :call RodarJava()<esc>
-:autocmd FileType python :nnoremap <leader>py :call RodarPython()<esc>
+:autocmd FileType java :nnoremap <leader><F5> :call CompilarJava()<esc>
+:autocmd FileType java :nnoremap <leader><F6> :call RodarJava()<esc>
+:autocmd FileType python :nnoremap <leader><F6> :call RodarPython()<esc>
 
 "Configurações para Python
 :filetype indent plugin on
 
 "Configuração do popmenu completition
-highlight  Pmenu        ctermbg=white   ctermfg=black
-highlight  PmenuSel     ctermbg=darkgray    ctermfg=white   cterm=bold
-highlight  PmenuSbar    ctermbg=white    ctermfg=white
-highlight  PmenuThumb   ctermbg=darkgray    ctermfg=darkgray
+highlight  Pmenu        ctermbg=7   ctermfg=black
+highlight  PmenuSel     ctermbg=242    ctermfg=7   cterm=bold
+highlight  PmenuSbar    ctermbg=7    ctermfg=7
+highlight  PmenuThumb   ctermbg=242    ctermfg=242
+"Configurações para cores do cursor quando match pair
 highlight  MatchParen   cterm=bold ctermbg=242    ctermfg=7
