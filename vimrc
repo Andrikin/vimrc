@@ -23,9 +23,11 @@
 "Configurações gerais
 :set hlsearch
 :set textwidth=0
+"Setando cursorline para habilitar HIGHLIGHT CursorLine (mudar o background da linha, uma maneira de enxeguar melhor onde está o cursor - Não deu muito certo)
+":set cursorline
 
 "Esquema de Cor
-:colorscheme koehler
+:colorscheme mycolors
 
 "Configuração de Netrw
 :let g:netrw_banner = 0
@@ -159,13 +161,13 @@
 :autocmd FileType java :nnoremap <leader><F6> :call RodarJava()<esc>
 :autocmd FileType python :nnoremap <leader><F6> :call RodarPython()<esc>
 
-"Configurações para Python
+"Configurações para Plugin's
 :filetype indent plugin on
 
 "Configuração do popmenu completition
-highlight  Pmenu        ctermbg=7   ctermfg=black
-highlight  PmenuSel     ctermbg=242    ctermfg=7   cterm=bold
-highlight  PmenuSbar    ctermbg=7    ctermfg=7
-highlight  PmenuThumb   ctermbg=242    ctermfg=242
+"highlight  Pmenu        ctermbg=7   ctermfg=black
+"highlight  PmenuSel     ctermbg=242    ctermfg=7   cterm=bold
+"highlight  PmenuSbar    ctermbg=7    ctermfg=7
+"highlight  PmenuThumb   ctermbg=242    ctermfg=242
 "Configurações para cores do cursor quando match pair
-highlight  MatchParen   cterm=bold ctermbg=242    ctermfg=7
+"highlight  MatchParen   cterm=bold ctermbg=242    ctermfg=7
