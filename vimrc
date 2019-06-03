@@ -20,9 +20,9 @@
 :set incsearch
 :set ignorecase
 :set smartcase
-"Configurações gerais
 :set hlsearch
-:set textwidth=0
+"Configurações gerais
+
 "Setando cursorline para habilitar HIGHLIGHT CursorLine (mudar o background da linha, uma maneira de enxeguar melhor onde está o cursor - Não deu muito certo)
 ":set cursorline
 
@@ -40,18 +40,12 @@
 "Criando leader command
 :let mapleader = ","
 
-"Auto Indentação, trazendo o cursor para o local original
-:inoremap <F3> <Esc>magg=G`az.:w<CR>
-:nnoremap <F3> magg=G`az.:w<CR>
-"Retirar modo highlight search (Encontrar comando melhor)
-:nnoremap <silent> <F4> :nohlsearch<Bar>:echo<CR>
-
 "Shortcut para :%s///gc
 :nnoremap S :%s//gc<LEFT><LEFT><Left>
 
 "Enter para pular uma linha no modo normal
 :inoremap <CR> <C-m>
-:nnoremap <CR> o<esc>cc
+:nnoremap <CR> o
 "Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
 :nnoremap l w
 :nnoremap h b
@@ -77,14 +71,17 @@
 "Configuração para PageUp PageDown
 :nnoremap J <c-f>
 :nnoremap K <c-b>
-"Final da linha/início da linha
+"Final da linha/início da linha (encontra o primeiro/último caracter)
 :nnoremap H ^
 :vnoremap H ^
-:nnoremap L $
-:vnoremap L $
-"Esc rápido no Insert Mode
+:nnoremap L g_
+:vnoremap L g_
+"Esc rápido no Insert/Visual Mode
 :inoremap jj <ESC>
 :vnoremap vv <ESC>
+"Completition Files/tags
+:inoremap <c-f> <c-x><c-f>
+:inoremap <c-]> <c-x><c-]>
 
 "Atalhos usando map <leader>
 
@@ -92,11 +89,12 @@
 :nnoremap <leader>k H
 :nnoremap <leader>j L
 :nnoremap <leader>m M
-"Abrir netrw
-:nnoremap <leader>ex :Texplore<CR>
+"Abrir netrw File Manager
+:nnoremap <leader>fff :Texplore<CR>
 "Sair sem salvar
-:nnoremap <leader>q :q<CR>
-:inoremap <leader>q <ESC>:q<CR>
+:nnoremap <leader>qq :q<CR>
+:inoremap <leader>qq <ESC>:q<CR>
+"Sair de todos os arquivos sem salvar
 :nnoremap <leader>qa :qa<cr>
 "Configuração rápida do vimrc
 :nnoremap <leader>rc :tabedit $MYVIMRC<CR>
@@ -111,14 +109,26 @@
 :inoremap <leader>ss <Esc>:w<CR>
 :nnoremap <leader>ss :w<CR>
 "Salvar todos os arquivos abertos (Modo Tab)
-:nnoremap <leader>all :wa<CR>
+:nnoremap <leader>wa :wa<CR>
+"Retirar modo highlight search (Encontrar comando melhor)
+:nnoremap <leader>nh :nohl<bar>:echo<cr>
+"Colar/copiar e recortar do clip board do sistema
+:nnoremap <leader><c-v> <s-Insert>
+:nnoremap <leader><c-c> <c-Insert>
+:nnoremap <leader><c-x> <c-del>
+"Auto Indentação, trazendo o cursor para o local original
+:inoremap <leader><tab> <Esc>magg=G`az.:w<CR>
+:nnoremap <leader><tab> magg=G`az.:w<CR>
 
-"Atalho para autoQuotation
-:nnoremap <leader>qw cw""<esc>F"pf,w
+"Atalho para AutoQuotation
+:nnoremap <leader>qw ciw""<esc>F"pf,w
 "Inicializo um registrador recursivo com o atalho. O atalho será aplicado até
 "a última vírgula
 :let @a = ',qw@a'
 :nnoremap <leader>aq @a
+
+"Templates de arquivos
+:nnoremap <leader>java :-1read /home/andre/.vim/.esqueleto.java<cr>2jcc
 
 "Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
 :onoremap ( i(
@@ -132,42 +142,48 @@
 
 "Funções para compilar e rodar java/python
 :function CompilarJava()
-:	let l:nomeDoArquivo = expand('%:t')
+:	let l:nomeDoArquivo = expand('%:p')
 :	execute ":!clear&&javac " . l:nomeDoArquivo
 :endfunction
 
-
-:function RodarJava()
+"a ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
+:function RodarCodigo()
+"caso o arquivo foi aberto num diretório diferente, ir para diretório do arquivo
+:	let l:tamanhoStringArquivo = len(expand('%:t'))+1
+:	let l:caminhoDoArquivo = expand("%:p")
+:	execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
 :	let l:nomeDoArquivo = expand('%:t')
-"index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string
-"removendo .java
-:	execute ":!clear&&java " . l:nomeDoArquivo[:-6]
+:	let l:formatoDoArquivo = split(expand('%:t'), "\\.")
+:
+"programando qual comando deve ser executado 
+:	if l:formatoDoArquivo[1] == "java"
+"index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string, removendo .java
+"'.' concatena Strings
+:		execute ":!clear&&java " . l:nomeDoArquivo[:-6]
+:	elseif l:formatoDoArquivo[1] == "py"
+:		execute ":!clear&&python3 " . l:nomeDoArquivo
+:	endif
+:		
 :endfunction
-
-:function RodarPython()
-:	let l:nomeDoArquivo = expand('%:t')
-:	execute ":!clear&&python3 " . l:nomeDoArquivo
-:endfunction
-
 
 "Autocommands
 
 "Match pair para arquivos vim
 :autocmd FileType vim :set mps+=<:>
 :autocmd FileType vim :inoremap < <><Esc>i
+:autocmd FileType $MYVIMRC :set textwidth=0
 
 "Atalhos para arquivos específicos
-:autocmd FileType java :nnoremap <leader><F5> :call CompilarJava()<esc>
-:autocmd FileType java :nnoremap <leader><F6> :call RodarJava()<esc>
-:autocmd FileType python :nnoremap <leader><F6> :call RodarPython()<esc>
+:autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<esc>
+:autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<esc>
+
+"Configuração para compilar java e obter mensagens de erro dentro do Vim - ANALISAR COMO USAR
+":autocmd FileType java :set makeprg=javac\ %
+":autocmd FileType python :set makeprg=python3\ %
+"Comando para compilar os arquivos
+":nnoremap <leader><F7> :execute ":!clear"<bar>:make<cr>j:copen<cr>
+"ErrorFormat genérico
+":set errorformat=%A%t
 
 "Configurações para Plugin's
 :filetype indent plugin on
-
-"Configuração do popmenu completition
-"highlight  Pmenu        ctermbg=7   ctermfg=black
-"highlight  PmenuSel     ctermbg=242    ctermfg=7   cterm=bold
-"highlight  PmenuSbar    ctermbg=7    ctermfg=7
-"highlight  PmenuThumb   ctermbg=242    ctermfg=242
-"Configurações para cores do cursor quando match pair
-"highlight  MatchParen   cterm=bold ctermbg=242    ctermfg=7
