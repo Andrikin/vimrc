@@ -174,8 +174,8 @@
 :autocmd FileType $MYVIMRC :set textwidth=0
 
 "Atalhos para arquivos específicos
-:autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<esc>
-:autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<esc>
+:autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<cr>
+:autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<cr>
 
 "Configuração para compilar java e obter mensagens de erro dentro do Vim - ANALISAR COMO USAR
 ":autocmd FileType java :set makeprg=javac\ %
