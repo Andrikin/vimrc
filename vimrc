@@ -1,15 +1,18 @@
 "Configurações do Vim
 
-"Configurações do Powerline
+"Configurações utilizadas pelo Airline - Powerline
 :set laststatus=2 "Always display the statusline in all windows
 :set showtabline=2 "Always display the tabline, even if there is only one tab
 :set noshowmode "Hide the default mode text (e.g. -- INSERT -- below the statusline)
-:set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/
+":set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/ - Habilita Powerline-status (outro powerline)
 :set t_Co=256
+:let g:airline_powerline_fonts=1
+:let g:airline#extensions#tabline#enabled=1
+:let g:airline#extensions#tabline#formatter = "unique_tail"
 
 "Define como o Vim busca por arquivos
 :set path+=**
-"Numero nas Linhas
+"Indicadores - números nas linhas
 :set rnu 
 :set nu
 "Tamanho da indentação
@@ -21,10 +24,13 @@
 :set ignorecase
 :set smartcase
 :set hlsearch
-"Configurações gerais
 
-"Setando cursorline para habilitar HIGHLIGHT CursorLine (mudar o background da linha, uma maneira de enxeguar melhor onde está o cursor - Não deu muito certo)
-":set cursorline
+"Configurações gerais
+:set splitbelow
+:set syntax=vim.on
+
+"Quantidade de linhas que serão o limite para a rolagem (linhas acima/linhas abaixo do cursor)
+:set scrolloff=20
 
 "Esquema de Cor
 :colorscheme mycolors
@@ -49,22 +55,29 @@
 "Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
 :nnoremap l w
 :nnoremap h b
-":nnoremap kj <Insert>
 :nnoremap j <Down>
 :nnoremap k <Up>
+:vnoremap l w
+:vnoremap h b
+:vnoremap j <Down>
+:vnoremap k <Up>
 :nnoremap <BackSpace> X
 
 "Configuracao para digitação rápida
-:inoremap ( ()<Esc>i
-:inoremap { {}<Esc>i
-:inoremap " ""<Esc>i
-:inoremap [ []<Esc>i
-:inoremap ' ''<Esc>i
+:inoremap ( ()<left>
+:inoremap { {}<left>
+:inoremap " ""<left>
+:inoremap [ []<left>
+:inoremap ' ''<left>
 "Configuração para navegation keys
 :inoremap <C-h> <Left>
 :inoremap <C-j> <Down>
 :inoremap <C-k> <Up>
 :inoremap <C-l> <Right>
+"<c-j> já está configurado para ser <Down>
+:nnoremap <C-h> <Left>
+:nnoremap <C-k> <Up>
+:nnoremap <C-l> <Right>
 "Configuração troca de guias
 :nnoremap <TAB> gt
 :nnoremap <S-TAB> gT
@@ -86,9 +99,13 @@
 "Atalhos usando map <leader>
 
 "Ir para primeira linha/última linha
-:nnoremap <leader>k H
-:nnoremap <leader>j L
-:nnoremap <leader>m M
+"Se scrolloff está setado, estes comandos não são úteis
+":nnoremap <leader>k H
+":nnoremap <leader>j L
+":nnoremap <leader>m M
+"Em contrapartida mudar para estes comandos
+:nnoremap <leader>k<space> 19k
+:nnoremap <leader>j<space> 19j
 "Abrir netrw File Manager
 :nnoremap <leader>fff :Texplore<CR>
 "Sair sem salvar
@@ -111,11 +128,13 @@
 "Salvar todos os arquivos abertos (Modo Tab)
 :nnoremap <leader>wa :wa<CR>
 "Retirar modo highlight search (Encontrar comando melhor)
-:nnoremap <leader>nh :nohl<bar>:echo<cr>
-"Colar/copiar e recortar do clip board do sistema
-:nnoremap <leader><c-v> <s-Insert>
-:nnoremap <leader><c-c> <c-Insert>
-:nnoremap <leader><c-x> <c-del>
+:nnoremap <leader>nn :nohl<bar>:echo<cr>
+
+"Colar/copiar e recortar do clip board do sistema - Não estão funcionando
+":nnoremap <leader><c-v> <s-Insert>
+":nnoremap <leader><c-c> <c-Insert>
+":nnoremap <leader><c-x> <c-del>
+
 "Auto Indentação, trazendo o cursor para o local original
 :inoremap <leader><tab> <Esc>magg=G`az.:w<CR>
 :nnoremap <leader><tab> magg=G`az.:w<CR>
@@ -140,38 +159,43 @@
 
 "Functions
 
+"Função que verifica se o buffer está no diretório correto
+:function CorrigirDiretorio()
+:	if getcwd() != expand("%:p")
+:		let l:tamanhoStringArquivo = len(expand('%:t'))+1
+:		let l:caminhoDoArquivo = expand("%:p")
+:		execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
+:endfunction
+
 "Funções para compilar e rodar java/python
 :function CompilarJava()
-:	let l:nomeDoArquivo = expand('%:p')
+:	:call CorrigirDiretorio()
+:	let l:nomeDoArquivo = expand('%:t')
 :	execute ":!clear&&javac " . l:nomeDoArquivo
 :endfunction
 
-"a ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
+"A ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
 :function RodarCodigo()
-"caso o arquivo foi aberto num diretório diferente, ir para diretório do arquivo
-:	let l:tamanhoStringArquivo = len(expand('%:t'))+1
-:	let l:caminhoDoArquivo = expand("%:p")
-:	execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
-:	let l:nomeDoArquivo = expand('%:t')
-:	let l:formatoDoArquivo = split(expand('%:t'), "\\.")
+"Caso o arquivo foi aberto num diretório diferente, ir para diretório do arquivo
+:	:call CorrigirDiretorio()
 :
-"programando qual comando deve ser executado 
-:	if l:formatoDoArquivo[1] == "java"
-"index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string, removendo .java
+"Programando qual comando deve ser executado 
+:	let l:nomeDoArquivo = split(expand('%:t'), "\\.")
+:	if l:nomeDoArquivo[1] == "java"
+"Index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string, removendo .java
 "'.' concatena Strings
-:		execute ":!clear&&java " . l:nomeDoArquivo[:-6]
-:	elseif l:formatoDoArquivo[1] == "py"
-:		execute ":!clear&&python3 " . l:nomeDoArquivo
+:		execute ":!clear&&java " . l:nomeDoArquivo[0]
+:	elseif l:nomeDoArquivo[1] == "py"
+:		execute ":!clear&&python3 " . l:nomeDoArquivo[0] . "." . l:nomeDoArquivo[1] 
 :	endif
-:		
 :endfunction
 
 "Autocommands
 
-"Match pair para arquivos vim
+"Match pair para $MYVIMRC
 :autocmd FileType vim :set mps+=<:>
 :autocmd FileType vim :inoremap < <><Esc>i
-:autocmd FileType $MYVIMRC :set textwidth=0
+:autocmd FileType vim :set textwidth=0
 
 "Atalhos para arquivos específicos
 :autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<cr>
@@ -187,3 +211,9 @@
 
 "Configurações para Plugin's
 :filetype indent plugin on
+
+"Executa o Pathongen (Gerenciador de Plugin's?)
+execute pathogen#infect()
+
+"Modifiquei o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
+"Alterei os valores nnoremap de <cr>, -, e %
