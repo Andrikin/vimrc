@@ -129,6 +129,11 @@
 :nnoremap <leader>wa :wa<CR><bar>:echom "Todos os arquivos foram salvos!"<cr>
 "Retirar modo highlight search (Encontrar comando melhor)
 :nnoremap <leader>nn :nohl<bar>:echo<cr>
+"Fechar telas abertas em :split
+:nnoremap <leader>qj <c-w><c-j>:q<cr>
+"Mudar para tela superior/inferior
+:nnoremap <leader>J <c-w><c-j>
+:nnoremap <leader>K <c-w><c-k>
 
 "Colar/copiar e recortar do clip board do sistema - Não estão funcionando
 ":nnoremap <leader><c-v> <s-Insert>
@@ -165,18 +170,20 @@
 
 "Função que verifica se o buffer está no diretório correto
 :function CorrigirDiretorio()
-:	if getcwd() != expand("%:p")
+:	let l:caminhoDoArquivo = expand("%:p")
+:	if getcwd() != l:caminhoDoArquivo
 :		let l:tamanhoStringArquivo = len(expand('%:t'))+1
-:		let l:caminhoDoArquivo = expand("%:p")
 :		execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
+:	endif
 :endfunction
 
 "Funções para compilar e mostrar prováveis erros na tela do Vim
 :function CompilarJava()
 :	:call CorrigirDiretorio()
 :	let l:nomeDoArquivo = expand('%:t')
-:	execute ":!clear&&javac " . l:nomeDoArquivo . " 2> /home/andre/.vim/log_java.txt"
-:	execute ":!bash /home/andre/.vim/log_java_script.sh"
+"Acrescentado o comando :silent, o prompt retorna imediatamente
+:	execute ":silent ! javac " . l:nomeDoArquivo . " &> /home/andre/.vim/log_java.txt"
+:	execute ":silent ! bash /home/andre/.vim/log_java_script.sh"
 :	split /home/andre/.vim/log_java.txt
 :	resize 10
 :	execute "normal! \<c-w>\<c-k>"
