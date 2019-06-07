@@ -27,7 +27,7 @@
 
 "Configurações gerais
 :set splitbelow
-:set syntax=vim.on
+:set syntax=on.vim
 
 "Quantidade de linhas que serão o limite para a rolagem (linhas acima/linhas abaixo do cursor)
 :set scrolloff=20
@@ -126,7 +126,7 @@
 :inoremap <leader>ss <Esc>:w<CR>
 :nnoremap <leader>ss :w<CR>
 "Salvar todos os arquivos abertos (Modo Tab)
-:nnoremap <leader>wa :wa<CR>
+:nnoremap <leader>wa :wa<CR><bar>:echom "Todos os arquivos foram salvos!"<cr>
 "Retirar modo highlight search (Encontrar comando melhor)
 :nnoremap <leader>nn :nohl<bar>:echo<cr>
 
@@ -146,9 +146,6 @@
 :let @a = ',qw@a'
 :nnoremap <leader>aq @a
 
-"Templates de arquivos
-:nnoremap <leader>java :-1read /home/andre/.vim/.esqueleto.java<cr>2jcc
-
 "Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
 :onoremap ( i(
 :onoremap { i{
@@ -159,6 +156,13 @@
 
 "Functions
 
+"Preenchimento de Template
+:function TemplateJava()
+:	let l:nomeDoArquivo=split(expand("%:t"), "\\.")
+:	execute "normal! :-1read /home/andre/.vim/.esqueleto.java\rf<ciw" . l:nomeDoArquivo[0]
+:	execute "normal! 2j"
+:endfunction
+
 "Função que verifica se o buffer está no diretório correto
 :function CorrigirDiretorio()
 :	if getcwd() != expand("%:p")
@@ -167,13 +171,18 @@
 :		execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
 :endfunction
 
-"Funções para compilar e rodar java/python
+"Funções para compilar e mostrar prováveis erros na tela do Vim
 :function CompilarJava()
 :	:call CorrigirDiretorio()
 :	let l:nomeDoArquivo = expand('%:t')
-:	execute ":!clear&&javac " . l:nomeDoArquivo
+:	execute ":!clear&&javac " . l:nomeDoArquivo . " 2> /home/andre/.vim/log_java.txt"
+:	execute ":!bash /home/andre/.vim/log_java_script.sh"
+:	split /home/andre/.vim/log_java.txt
+:	resize 10
+:	execute "normal! \<c-w>\<c-k>"
 :endfunction
 
+"Função para rodar código compilado
 "A ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
 :function RodarCodigo()
 "Caso o arquivo foi aberto num diretório diferente, ir para diretório do arquivo
@@ -201,13 +210,8 @@
 :autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<cr>
 :autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<cr>
 
-"Configuração para compilar java e obter mensagens de erro dentro do Vim - ANALISAR COMO USAR
-":autocmd FileType java :set makeprg=javac\ %
-":autocmd FileType python :set makeprg=python3\ %
-"Comando para compilar os arquivos
-":nnoremap <leader><F7> :execute ":!clear"<bar>:make<cr>j:copen<cr>
-"ErrorFormat genérico
-":set errorformat=%A%t
+"Templates de arquivos
+:autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
 
 "Configurações para Plugin's
 :filetype indent plugin on
@@ -216,4 +220,4 @@
 execute pathogen#infect()
 
 "Modifiquei o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
-"Alterei os valores nnoremap de <cr>, -, e %
+"Alterei os valores nnoremap de <cr>, -, %, r, D, d, R
