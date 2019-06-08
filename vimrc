@@ -1,14 +1,15 @@
 "Configurações do Vim
 
 "Configurações utilizadas pelo Airline - Powerline
-:set laststatus=2 "Always display the statusline in all windows
-:set showtabline=2 "Always display the tabline, even if there is only one tab
-:set noshowmode "Hide the default mode text (e.g. -- INSERT -- below the statusline)
+:set laststatus=2 
+:set showtabline=2 
+:set noshowmode 
 ":set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/ - Habilita Powerline-status (outro powerline)
 :set t_Co=256
 :let g:airline_powerline_fonts=1
 :let g:airline#extensions#tabline#enabled=1
 :let g:airline#extensions#tabline#formatter = "unique_tail"
+
 "Variáveis que modificam statusline - Airline Powerline
 ":let g:airline_section_a=
 ":let g:airline_section_b=    
@@ -19,22 +20,25 @@
 ":let g:airline_section_z=    
 :let g:airline_section_error=""
 :let g:airline_section_warning=""
+
 "Variáveis Tabline - Airline - Powerline
 :let g:airline#extensions#tabline#show_tab_count = 0
 :let g:airline#extensions#tabline#show_tab_nr = 0
-":let g:airline#extensions#tabline#exclude_preview = 0
 :let g:airline#extensions#tabline#show_buffers = 0
 :let g:airline#extensions#tabline#close_symbol = ""
 
 "Define como o Vim busca por arquivos
 :set path+=**
+
 "Indicadores - números nas linhas
 :set rnu 
 :set nu
+
 "Tamanho da indentação
 :set tabstop=4
 :set shiftwidth=4
 :set softtabstop=4
+
 "Configurações para search
 :set incsearch
 :set ignorecase
@@ -68,6 +72,7 @@
 "Enter para pular uma linha no modo normal
 :inoremap <CR> <C-m>
 :nnoremap <CR> o
+
 "Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
 :nnoremap l w
 :nnoremap h b
@@ -85,6 +90,7 @@
 :inoremap " ""<left>
 :inoremap [ []<left>
 :inoremap ' ''<left>
+
 "Configuração para navegation keys
 :inoremap <C-h> <Left>
 :inoremap <C-j> <Down>
@@ -94,20 +100,25 @@
 :nnoremap <C-h> <Left>
 :nnoremap <C-k> <Up>
 :nnoremap <C-l> <Right>
+
 "Configuração troca de guias
 :nnoremap <TAB> gt
 :nnoremap <S-TAB> gT
+
 "Configuração para PageUp PageDown
 :nnoremap J <c-f>
 :nnoremap K <c-b>
+
 "Final da linha/início da linha (encontra o primeiro/último caracter)
 :nnoremap H ^
 :vnoremap H ^
 :nnoremap L g_
 :vnoremap L g_
+
 "Esc rápido no Insert/Visual Mode
 :inoremap jj <ESC>
 :vnoremap vv <ESC>
+
 "Completition Files/tags
 :inoremap <c-f> <c-x><c-f>
 :inoremap <c-]> <c-x><c-]>
@@ -119,34 +130,47 @@
 ":nnoremap <leader>k H
 ":nnoremap <leader>j L
 ":nnoremap <leader>m M
+"
 "Em contrapartida mudar para estes comandos
 :nnoremap <leader>k<space> 19k
 :nnoremap <leader>j<space> 19j
+
 "Abrir netrw File Manager
 :nnoremap <leader>fff :Texplore<CR>
+
 "Sair sem salvar
 :nnoremap <leader>qq :q<CR>
 :inoremap <leader>qq <ESC>:q<CR>
+
 "Sair de todos os arquivos sem salvar
 :nnoremap <leader>qa :qa<cr>
+
 "Configuração rápida do vimrc
 :nnoremap <leader>rc :tabedit $MYVIMRC<CR>
+
 "Transformar palavra para UpperCase
 :nnoremap <leader>u viwU
+
 "Source vimrc
 :nnoremap <leader>xo :source $MYVIMRC<cr><bar>:echom "Arquivo vimrc atualizado!"<cr>
+
 "Sair salvando arquivo
 :inoremap <leader>qs <Esc>ZZ
 :nnoremap <leader>qs ZZ
+
 "Salvar arquivo
 :inoremap <leader>ss <Esc>:w<CR>
 :nnoremap <leader>ss :w<CR>
+
 "Salvar todos os arquivos abertos (Modo Tab)
 :nnoremap <leader>wa :wa<CR><bar>:echom "Todos os arquivos foram salvos!"<cr>
+
 "Retirar modo highlight search (Encontrar comando melhor)
 :nnoremap <leader>nn :nohl<bar>:echo<cr>
+
 "Fechar telas abertas em :split
 :nnoremap <leader>qj <c-w><c-j>:q<cr>
+
 "Mudar para tela superior/inferior
 :nnoremap <leader>J <c-w><c-j>
 :nnoremap <leader>K <c-w><c-k>
@@ -243,4 +267,4 @@
 execute pathogen#infect()
 
 "Modifiquei o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
-"Alterei os valores nnoremap de <cr>, -, %, r, D, d, R
+"Alterei os valores nnoremap de <cr>, -, %, r, D, d, R para respectivamente (l, h, f, R, d, n, r)
