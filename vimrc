@@ -19,6 +19,12 @@
 ":let g:airline_section_z=    
 :let g:airline_section_error=""
 :let g:airline_section_warning=""
+"Variáveis Tabline - Airline - Powerline
+:let g:airline#extensions#tabline#show_tab_count = 0
+:let g:airline#extensions#tabline#show_tab_nr = 0
+":let g:airline#extensions#tabline#exclude_preview = 0
+:let g:airline#extensions#tabline#show_buffers = 0
+:let g:airline#extensions#tabline#close_symbol = ""
 
 "Define como o Vim busca por arquivos
 :set path+=**
