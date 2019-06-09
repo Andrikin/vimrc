@@ -1,4 +1,7 @@
-"Configurações do Vim
+"Minhas Configurações VIM
+"
+"Autor: Andre Alexandre Aguiar
+"Email: andrealexandreaguiar@gmail.com
 
 "Configurações utilizadas pelo Airline - Powerline
 :set laststatus=2 
@@ -186,8 +189,7 @@
 
 "Atalho para AutoQuotation
 :nnoremap <leader>qw ciw""<esc>F"pf,w
-"Inicializo um registrador recursivo com o atalho. O atalho será aplicado até
-"a última vírgula
+"Inicializo um registrador recursivo com o atalho. O atalho será aplicado até a última vírgula
 :let @a = ',qw@a'
 :nnoremap <leader>aq @a
 
@@ -196,34 +198,37 @@
 :onoremap { i{
 :onoremap [ i[
 :onoremap " i"
+:onoremap ' i'
 :onoremap < i<
 :onoremap w iw
+:onoremap W iW
 
 "Functions
 
 "Preenchimento de Template
 :function TemplateJava()
-:	let l:nomeDoArquivo=split(expand("%:t"), "\\.")
-:	execute "normal! :-1read /home/andre/.vim/.esqueleto.java\rf<ciw" . l:nomeDoArquivo[0]
+:	0read /home/andre/.vim/.esqueleto.java
+:	execute "normal! fTciw" . expand("%:t:r")
 :	execute "normal! 2j"
 :endfunction
 
 "Função que verifica se o buffer está no diretório correto
 :function CorrigirDiretorio()
-:	let l:caminhoDoArquivo = expand("%:p")
-:	if getcwd() != l:caminhoDoArquivo
-:		let l:tamanhoStringArquivo = len(expand('%:t'))+1
-:		execute ":cd " . l:caminhoDoArquivo[:-(l:tamanhoStringArquivo)]
+:	if getcwd() != expand("%:p")
+:		execute ":cd " . expand("%:p:h")
 :	endif
 :endfunction
 
 "Funções para compilar e mostrar prováveis erros na tela do Vim
-:function CompilarJava()
-:	:call CorrigirDiretorio()
-:	let l:nomeDoArquivo = expand('%:t')
 "Acrescentado o comando :silent, o prompt retorna imediatamente
-:	execute ":silent ! javac " . l:nomeDoArquivo . " &> /home/andre/.vim/log_java.txt"
-:	execute ":silent ! bash /home/andre/.vim/log_java_script.sh"
+:function CompilarJava()
+:	call CorrigirDiretorio()
+:	if buflisted(bufname("log_java.txt"))
+:		bdelete ~/.vim/log_java.txt
+:	endif
+:	silent !javac "%:t" &> /home/andre/.vim/log_java.txt
+:	silent !bash /home/andre/.vim/log_java_script.sh
+:	redraw!
 :	split /home/andre/.vim/log_java.txt
 :	resize 10
 :	execute "normal! \<c-w>\<c-k>"
@@ -232,17 +237,13 @@
 "Função para rodar código compilado
 "A ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
 :function RodarCodigo()
-"Caso o arquivo foi aberto num diretório diferente, ir para diretório do arquivo
 :	:call CorrigirDiretorio()
-:
-"Programando qual comando deve ser executado 
-:	let l:nomeDoArquivo = split(expand('%:t'), "\\.")
-:	if l:nomeDoArquivo[1] == "java"
-"Index and slice strings - como no Python - lembrar que é utilizado as posições dos caracteres para 'cortar' a string, removendo .java
-"'.' concatena Strings
-:		execute ":!clear&&java " . l:nomeDoArquivo[0]
-:	elseif l:nomeDoArquivo[1] == "py"
-:		execute ":!clear&&python3 " . l:nomeDoArquivo[0] . "." . l:nomeDoArquivo[1] 
+"Buscando saber qual comando deve ser executado 
+:	let l:nomeDoArquivo = expand("%:e")
+:	if l:nomeDoArquivo == "java"
+:		execute ":!clear&&java " . expand("%:t:r")
+:	elseif l:nomeDoArquivo == "py"
+:		execute ":!clear&&python3 " . expand("%:t")
 :	endif
 :endfunction
 
