@@ -23,7 +23,7 @@ highlight Title		      cterm=bold  ctermfg=darkmagenta
 highlight Visual		  cterm=reverse  
 highlight WarningMsg	  cterm=bold  ctermfg=darkred 
 highlight Cursor		  cterm=bold
-highlight Comment		  cterm=bold,italic ctermfg=cyan  
+highlight Comment		  cterm=bold,italic ctermfg=darkblue
 highlight Constant		  cterm=bold ctermfg=magenta  
 highlight Special		  cterm=bold ctermfg=red  
 highlight Identifier	  ctermfg=lightblue  
