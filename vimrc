@@ -63,6 +63,10 @@
 " Quantidade de linhas que serão o limite para a rolagem (linhas acima/linhas abaixo do cursor)
 :set scrolloff=20
 
+" Variável para :mksession (nome do arquivo)
+:let g:ArquivoMksession="vimsessao.vim"
+:let g:SessaoAberta=0
+
 " Esquema de Cor
 :colorscheme mycolors
 
@@ -204,6 +208,9 @@
 :let @a = ',qw@a'
 :nnoremap <leader>aq @a
 
+" Criando :mksession
+:nnoremap <leader>mk :call SalvarSessao()<cr>
+
 " Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
 :onoremap ( i(
 :onoremap { i{
@@ -215,6 +222,15 @@
 :onoremap W iW
 
 " Functions
+
+:function! SalvarSessao()
+:	if g:SessaoAberta
+:		mksession g:ArquivoMksession
+:	else
+:		source g:ArquivoMksession
+:		let g:SessaoAberta=1
+:	endif
+:endfunction
 
 :function! RecarregarVimrc()
 :	AirlineRefresh
@@ -247,7 +263,7 @@
 :	if buflisted(bufname("log_java.txt"))
 :		bdelete ~/.vim/log_java.txt
 :	endif
-:	silent !javac "%:t" &> /home/andre/.vim/log_java.txt
+:	silent !clear&&javac "%:t" &> /home/andre/.vim/log_java.txt
 :	silent !clear&&bash /home/andre/.vim/log_java_script.sh
 :	redraw!
 :	split /home/andre/.vim/log_java.txt
