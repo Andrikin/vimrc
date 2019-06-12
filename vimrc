@@ -63,10 +63,6 @@
 " Quantidade de linhas que serão o limite para a rolagem (linhas acima/linhas abaixo do cursor)
 :set scrolloff=20
 
-" Variável para :mksession (nome do arquivo)
-:let g:ArquivoMksession="vimsessao.vim"
-:let g:SessaoAberta=0
-
 " Esquema de Cor
 :colorscheme mycolors
 
@@ -224,11 +220,26 @@
 " Functions
 
 :function! SalvarSessao()
-:	if g:SessaoAberta
-:		mksession g:ArquivoMksession
+"	Salvar a sessão que está aberta
+:	echohl MoreMsg | echom "Gostaria de SALVAR esta sessão ou ABRIR a anterior? [S]alvar; [A]brir Anterior" | echohl None
+:	call inputsave()
+:	let l:respostaUsuario=input("")
+:	call inputrestore()
+"	Criar nova sessão, sem ter iniciado uma anterior
+:	if str2nr(match("s", l:respostaUsuario))==0
+:		silent !rm ~/.vim/vimsessao.vim
+:		silent mksession ~/.vim/vimsessao.vim
+:		wall
+:		redraw!
+:		echom "Sessão foi salva com Sucesso!"
+"	Abrir sessão anterior
+:	elseif str2nr(match("a", l:respostaUsuario))==0
+:		silent source ~/.vim/vimsessao.vim
+:		redraw!
+:		AirlineRefresh
+:		echom "Sessão inicializada com Sucesso!"
 :	else
-:		source g:ArquivoMksession
-:		let g:SessaoAberta=1
+:		echo "\n" | call SalvarSessao()
 :	endif
 :endfunction
 
@@ -277,9 +288,9 @@
 :	:call CorrigirDiretorio()
 " Buscando saber qual comando deve ser executado 
 :	let l:nomeDoArquivo = expand("%:e")
-:	if l:nomeDoArquivo == "java"
+:	if l:nomeDoArquivo ==? "java"
 :		execute ":!clear&&java " . expand("%:t:r")
-:	elseif l:nomeDoArquivo == "py"
+:	elseif l:nomeDoArquivo ==? "py"
 :		execute ":!clear&&python3 " . expand("%:t")
 :	endif
 :endfunction
