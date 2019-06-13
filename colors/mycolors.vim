@@ -11,16 +11,16 @@ highlight SpecialKey	  cterm=bold  ctermfg=darkred
 highlight NonText		  cterm=bold  ctermfg=darkred 
 highlight Directory	      cterm=bold  ctermfg=lightblue  
 highlight ErrorMsg		  cterm=bold  ctermfg=grey  ctermbg=red  
-highlight Search		  ctermfg=white  ctermbg=red      
+highlight Search		  cterm=bold,italic ctermfg=red  ctermbg=white      
 highlight MoreMsg		  cterm=bold  ctermfg=darkgreen	
 highlight ModeMsg		  cterm=bold  
 highlight LineNr		  cterm=bold  ctermfg=white	
-highlight CursorLineNr 	  cterm=bold  ctermfg=red	
+highlight CursorLineNr 	  cterm=bold  ctermfg=yellow	
 highlight Question		  cterm=bold  ctermfg=white	
 highlight StatusLine	  cterm=bold ctermfg=lightblue ctermbg=white 
 highlight StatusLineNC    ctermfg=white ctermbg=lightblue 
 highlight Title		      cterm=bold  ctermfg=darkmagenta  
-highlight Visual		  cterm=reverse  
+highlight Visual		  cterm=bold ctermfg=black ctermbg=white  
 highlight WarningMsg	  cterm=bold  ctermfg=darkred 
 highlight Cursor		  cterm=bold
 highlight Comment		  cterm=bold,italic ctermfg=darkblue
