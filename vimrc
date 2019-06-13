@@ -33,9 +33,12 @@
 :let g:airline_section_warning=""
 
 " Variáveis Tabline - Airline Powerline
+:let g:airline#extensions#tabline#show_tab_type = 0
 :let g:airline#extensions#tabline#show_tab_count = 0
 :let g:airline#extensions#tabline#show_tab_nr = 0
 :let g:airline#extensions#tabline#show_buffers = 0
+:let g:airline#extensions#tabline#buffer_idx_mode = 0
+:let g:airline#extensions#tabline#show_close_button = 0
 :let g:airline#extensions#tabline#close_symbol = ""
 
 " Define como o Vim busca por arquivos
@@ -77,7 +80,7 @@
 :let mapleader = ","
 
 " Shortcut para :%s///gc
-:nnoremap S :%s//gc<left><left><left>
+:nnoremap S :%s//g<left><left><left>
 
 " Enter para pular uma linha no modo normal
 :inoremap <cr> <C-m>
@@ -166,7 +169,7 @@
 :nnoremap <leader>u viwU
 
 " Source vimrc - Problema com Tabline do Airline Powerline (alguns caracteres perdiam a cor)
-:nnoremap <leader>xo :source $MYVIMRC<bar>:call RecarregarVimrc()<cr>
+:nnoremap <leader>xo :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
 
 " Sair salvando arquivo
 :inoremap <leader>qs <esc>ZZ
@@ -180,7 +183,7 @@
 :nnoremap <leader>wa :wa<bar>:echom "Todos os arquivos foram salvos!"<cr>
 
 " Retirar modo highlight search (Encontrar comando melhor)
-:nnoremap <leader>nn :nohl<bar>:echo<cr>
+:nnoremap <leader>nn :nohls<bar>:echo<cr>
 
 " Fechar telas abertas em :split
 :nnoremap <leader>qj <c-w><c-j>:q<cr>
@@ -221,7 +224,7 @@
 
 :function! SalvarSessao()
 "	Salvar a sessão que está aberta
-:	echohl MoreMsg | echom "Gostaria de SALVAR esta sessão ou ABRIR a anterior? [S]alvar; [A]brir Anterior" | echohl None
+:	echohl MoreMsg | echom "Gostaria de SALVAR esta sessão ou ABRIR a anterior? [S]alvar; Abrir [A]nterior" | echohl None
 :	call inputsave()
 :	let l:respostaUsuario=input("")
 :	call inputrestore()
@@ -245,12 +248,10 @@
 
 :function! RecarregarVimrc()
 :	AirlineRefresh
-" Comando :e produz o reload do arquivo
+" Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
 :	silent e
 " Comando :redraw redesenha a janela. Com a partícula [!], primeiramente limpa a janela e depois redesenha
-:	redraw
-:	echom "Configurações do arquivo vimrc atualizadas!"
-:	nohl
+:	redraw! | echom "Configurações do arquivo vimrc atualizadas!"
 :endfunction
 
 " Preenchimento de Template
