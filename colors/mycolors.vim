@@ -11,7 +11,7 @@ highlight SpecialKey	  cterm=bold  ctermfg=darkred
 highlight NonText		  cterm=bold  ctermfg=darkred 
 highlight Directory	      cterm=bold  ctermfg=lightblue  
 highlight ErrorMsg		  cterm=bold  ctermfg=grey  ctermbg=red  
-highlight Search		  cterm=bold,italic ctermfg=red  ctermbg=white      
+highlight Search		  cterm=bold,italic ctermfg=black  ctermbg=green      
 highlight MoreMsg		  cterm=bold  ctermfg=darkgreen	
 highlight ModeMsg		  cterm=bold  
 highlight LineNr		  cterm=bold  ctermfg=white	
