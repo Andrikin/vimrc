@@ -79,8 +79,8 @@
 " Criando leader command
 :let mapleader = ","
 
-" Shortcut para :%s///gc
-:nnoremap S :%s//g<left><left><left>
+" Shortcut para :%s///g
+:nnoremap S :%s///g<left><left><left>
 
 " Enter para pular uma linha no modo normal
 :inoremap <cr> <C-m>
@@ -290,9 +290,9 @@
 " Buscando saber qual comando deve ser executado 
 :	let l:nomeDoArquivo = expand("%:e")
 :	if l:nomeDoArquivo ==? "java"
-:		execute ":!clear&&java " . expand("%:t:r")
+:		!clear&&java "%:t:r"
 :	elseif l:nomeDoArquivo ==? "py"
-:		execute ":!clear&&python3 " . expand("%:t")
+:		!clear&&python3 "%:t"
 :	endif
 :endfunction
 
