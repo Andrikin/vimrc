@@ -22,13 +22,6 @@
 :let g:airline#extensions#tabline#formatter = "unique_tail"
 
 " Variáveis que modificam statusline - Airline Powerline
-":let g:airline_section_a=
-":let g:airline_section_b=    
-":let g:airline_section_c=    
-":let g:airline_section_gutter=
-":let g:airline_section_x=    
-":let g:airline_section_y=    
-":let g:airline_section_z=    
 :let g:airline_section_error=""
 :let g:airline_section_warning=""
 
@@ -62,8 +55,7 @@
 " Configurações gerais
 :set splitbelow
 :set syntax=on.vim
-
-" Quantidade de linhas que serão o limite para a rolagem (linhas acima/linhas abaixo do cursor)
+:set autochdir
 :set scrolloff=20
 
 " Esquema de Cor
@@ -138,12 +130,6 @@
 
 " Atalhos usando map <leader>
 
-" Ir para primeira linha/última linha
-" Se scrolloff está setado, estes comandos não são úteis
-":nnoremap <leader>k H
-":nnoremap <leader>j L
-":nnoremap <leader>m M
-"
 " Em contrapartida mudar para estes comandos
 :nnoremap <leader>k<space> 19k
 :nnoremap <leader>j<space> 19j
@@ -192,11 +178,6 @@
 :nnoremap <leader>J <c-w><c-j>
 :nnoremap <leader>K <c-w><c-k>
 
-" Colar/copiar e recortar do clip board do sistema - Não estão funcionando
-":nnoremap <leader><c-v> <s-Insert>
-":nnoremap <leader><c-c> <c-Insert>
-":nnoremap <leader><c-x> <c-del>
-
 " Auto Indentação, trazendo o cursor para o local original
 :inoremap <leader><tab> <esc>magg=G`az.:w<cr>
 :nnoremap <leader><tab> magg=G`az.:w<cr>
@@ -223,24 +204,27 @@
 " Functions
 
 :function! SalvarSessao()
-"	Salvar a sessão que está aberta
-:	echohl MoreMsg | echom "Gostaria de SALVAR esta sessão ou ABRIR a anterior? [S]alvar; Abrir [A]nterior" | echohl None
-:	call inputsave()
-:	let l:respostaUsuario=input("")
-:	call inputrestore()
-"	Criar nova sessão, sem ter iniciado uma anterior
-:	if str2nr(match("s", l:respostaUsuario))==0
+:	let l:respostaUsuario=confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
+"	Salvar sessão
+:	if l:respostaUsuario==1
 :		silent !rm ~/.vim/vimsessao.vim
 :		silent mksession ~/.vim/vimsessao.vim
 :		wall
 :		redraw!
-:		echom "Sessão foi salva com Sucesso!"
+:		echom "Sessão e arquivos salvos com Sucesso!"
 "	Abrir sessão anterior
-:	elseif str2nr(match("a", l:respostaUsuario))==0
-:		silent source ~/.vim/vimsessao.vim
-:		redraw!
-:		AirlineRefresh
-:		echom "Sessão inicializada com Sucesso!"
+:	elseif l:respostaUsuario==2
+:		if filereadable("/home/andre/.vim/vimsessao.vim")
+:			silent source ~/.vim/vimsessao.vim
+:			redraw!
+:			AirlineRefresh
+:			echom "Sessão inicializada com Sucesso!"
+:		else
+"			A mensagem de erro atua como um throw exception, informando onde o erro aconteceu e a mensagem de erro
+:			echoerr "Arquivo ~/.vim/vimsessao.vim não existe! Criando arquivo vimsessao.vim"
+:			silent mksession ~/.vim/vimsessao.vim
+:			echohl MoreMsg | echom "Arquivo criado com sucesso!" | echohl None
+:		endif
 :	else
 :		echo "\n" | call SalvarSessao()
 :	endif
@@ -248,9 +232,9 @@
 
 :function! RecarregarVimrc()
 :	AirlineRefresh
-" Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
+"	Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
 :	silent e
-" Comando :redraw redesenha a janela. Com a partícula [!], primeiramente limpa a janela e depois redesenha
+"	Comando :redraw redesenha a janela. Com a partícula [!], primeiramente limpa a janela e depois redesenha
 :	redraw! | echom "Configurações do arquivo vimrc atualizadas!"
 :endfunction
 
@@ -261,19 +245,11 @@
 :	execute "normal! 2j"
 :endfunction
 
-" Função que verifica se o buffer está no diretório correto
-:function! CorrigirDiretorio()
-:	if getcwd() != expand("%:p")
-:		execute ":cd " . expand("%:p:h")
-:	endif
-:endfunction
-
 " Funções para compilar e mostrar prováveis erros na tela do Vim
 " Acrescentado o comando :silent, o prompt retorna imediatamente
 :function! CompilarJava()
-:	call CorrigirDiretorio()
-:	if buflisted(bufname("log_java.txt"))
-:		bdelete ~/.vim/log_java.txt
+:	if bufexists(bufname("log_java.txt"))
+:		bdelete log_java.txt
 :	endif
 :	silent !clear&&javac "%:t" &> /home/andre/.vim/log_java.txt
 :	silent !clear&&bash /home/andre/.vim/log_java_script.sh
@@ -284,9 +260,7 @@
 :endfunction
 
 " Função para rodar código compilado
-" A ideia é fazer um método genérico para vários formatos de arquivos (Java/Python)
 :function! RodarCodigo()
-:	:call CorrigirDiretorio()
 " Buscando saber qual comando deve ser executado 
 :	let l:nomeDoArquivo = expand("%:e")
 :	if l:nomeDoArquivo ==? "java"
@@ -306,6 +280,7 @@
 " Atalhos para arquivos específicos
 :autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<cr>
 :autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<cr>
+:autocmd FileType python :inoremap ; :
 
 " Templates de arquivos
 :autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
