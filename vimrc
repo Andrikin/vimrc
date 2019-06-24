@@ -203,10 +203,20 @@
 
 " Functions
 
+:function! EliminarHidBuf()
+:	let id_ultimo_buf=bufnr("$")
+:	for id in range(1, id_ultimo_buf) 
+:		if bufloaded(id)==0&&buflisted(id)
+:			execute "silent bdelete " . id 
+:		endif
+:	endfor
+:endfunction
+
 :function! SalvarSessao()
 :	let l:respostaUsuario=confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
 :	if l:respostaUsuario==1
+:		call EliminarHidBuf()
 :		silent !rm ~/.vim/vimsessao.vim
 :		silent mksession ~/.vim/vimsessao.vim
 :		wall
