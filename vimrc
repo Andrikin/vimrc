@@ -101,7 +101,12 @@
 :inoremap <C-j> <Down>
 :inoremap <C-k> <Up>
 :inoremap <C-l> <Right>
-" <c-j> já está configurado para ser <Down>
+:vnoremap <C-h> <left>
+:vnoremap <C-j> <Down>
+:vnoremap <C-k> <Up>
+:vnoremap <C-l> <Right>
+" <C-j> já está configurado para ser <Down>
+" <C-j> já está configurado para ser <Down>
 :nnoremap <C-h> <left>
 :nnoremap <C-k> <Up>
 :nnoremap <C-l> <Right>
@@ -111,8 +116,8 @@
 :nnoremap <S-TAB> gT
 
 " Configuração para PageUp PageDown
-:nnoremap J <c-f>
-:nnoremap K <c-b>
+:nnoremap J <C-f>
+:nnoremap K <C-b>
 
 " Final da linha/início da linha (encontra o primeiro/último caracter)
 :nnoremap H ^
@@ -125,17 +130,17 @@
 :vnoremap vv <esc>
 
 " Completition Files/tags
-:inoremap <c-f> <c-x><c-f>
-:inoremap <c-]> <c-x><c-]>
+:inoremap <C-f> <C-x><C-f>
+":inoremap <C-]> <C-x><C-]>
 
 " Atalhos usando map <leader>
 
-" Em contrapartida mudar para estes comandos
-:nnoremap <leader>k<space> 19k
-:nnoremap <leader>j<space> 19j
+" PageUp/PageDown
+:nnoremap <leader>K 19k
+:nnoremap <leader>J 19j
 
 " Abrir netrw File Manager
-:nnoremap <leader>fff :Texplore<cr>
+:nnoremap <leader>ff :Texplore<cr>
 
 " Sair sem salvar
 :nnoremap <leader>qq :q<cr>
@@ -172,11 +177,11 @@
 :nnoremap <leader>nn :nohls<bar>:echo<cr>
 
 " Fechar telas abertas em :split
-:nnoremap <leader>qj <c-w><c-j>:q<cr>
+:nnoremap <leader>qj <C-w><C-j>:q<cr>
 
 " Mudar para tela superior/inferior
-:nnoremap <leader>J <c-w><c-j>
-:nnoremap <leader>K <c-w><c-k>
+:nnoremap <leader>jm <C-w><C-j>
+:nnoremap <leader>ki <C-w><C-k>
 
 " Auto Indentação, trazendo o cursor para o local original
 :inoremap <leader><tab> <esc>magg=G`az.:w<cr>
@@ -266,7 +271,7 @@
 :	redraw!
 :	split /home/andre/.vim/log_java.txt
 :	resize 10
-:	execute "normal! \<c-w>\<c-k>"
+:	execute "normal! \<C-w>\<C-k>"
 :endfunction
 
 " Função para rodar código compilado
@@ -288,8 +293,8 @@
 :autocmd FileType vim :set textwidth=0
 
 " Atalhos para arquivos específicos
-:autocmd FileType java :nnoremap <leader><c-j> :call CompilarJava()<cr>
-:autocmd FileType java,python :nnoremap <leader><c-k> :call RodarCodigo()<cr>
+:autocmd FileType java :nnoremap <leader><C-j> :call CompilarJava()<cr>
+:autocmd FileType java,python :nnoremap <leader><C-k> :call RodarCodigo()<cr>
 :autocmd FileType python :inoremap ; :
 
 " Templates de arquivos
