@@ -1,3 +1,4 @@
+" TODO - Aprimorar o comando de 'Auto Quotation'
 "                                                __  __             __      ___
 "                                               |  \/  |            \ \    / (_)
 "                                               | \  / | ___ _   _   \ \  / / _ _ __ ___  _ __ ___
@@ -12,10 +13,10 @@
 " Email: andrealexandreaguiar@gmail.com
 
 " Configurações utilizadas pelo Airline - Powerline
+":set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/ - Habilita Powerline-status (outro powerline)
 :set laststatus=2 
 :set showtabline=2 
 :set noshowmode 
-":set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/ - Habilita Powerline-status (outro powerline)
 :set t_Co=256
 :let g:airline_powerline_fonts=1
 :let g:airline#extensions#tabline#enabled=1
@@ -24,8 +25,11 @@
 " Variáveis que modificam statusline - Airline Powerline
 :let g:airline_section_error=""
 :let g:airline_section_warning=""
+:let g:airline#extensions#wordcount#enabled = 0
+" A data é atualizada caso algum comando seja executado (importante nos casos de fullscreen)
+:let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%d/%b %H:%M')}"
 
-" Variáveis Tabline - Airline Powerline
+" variáveis tabline - airline powerline
 :let g:airline#extensions#tabline#show_tab_type = 0
 :let g:airline#extensions#tabline#show_tab_count = 0
 :let g:airline#extensions#tabline#show_tab_nr = 0
@@ -56,7 +60,7 @@
 :set splitbelow
 :set syntax=on.vim
 :set autochdir
-:set scrolloff=20
+:set scrolloff=22
 
 " Esquema de Cor
 :colorscheme mycolors
@@ -72,7 +76,7 @@
 :let mapleader = ","
 
 " Shortcut para :%s///g
-:nnoremap S :%s///g<left><left><left>
+:nnoremap S :%s///g<Left><Left><Left>
 
 " Enter para pular uma linha no modo normal
 :inoremap <cr> <C-m>
@@ -90,26 +94,29 @@
 :nnoremap <BackSpace> X
 
 " Configuracao para digitação rápida
-:inoremap ( ()<left>
-:inoremap { {}<left>
-:inoremap " ""<left>
-:inoremap [ []<left>
-:inoremap ' ''<left>
+:inoremap ( ()<Left>
+:inoremap { {}<Left>
+:inoremap " ""<Left>
+:inoremap [ []<Left>
+:inoremap ' ''<Left>
 
 " Configuração para navegation keys
-:inoremap <C-h> <left>
+:inoremap <C-h> <Left>
 :inoremap <C-j> <Down>
 :inoremap <C-k> <Up>
 :inoremap <C-l> <Right>
-:vnoremap <C-h> <left>
+:vnoremap <C-h> <Left>
 :vnoremap <C-j> <Down>
 :vnoremap <C-k> <Up>
 :vnoremap <C-l> <Right>
 " <C-j> já está configurado para ser <Down>
-" <C-j> já está configurado para ser <Down>
-:nnoremap <C-h> <left>
+:nnoremap <C-h> <Left>
 :nnoremap <C-k> <Up>
 :nnoremap <C-l> <Right>
+
+" Aumentar/diminuir números
+:nnoremap _ <C-x>
+:nnoremap + <C-a>
 
 " Configuração troca de guias
 :nnoremap <TAB> gt
@@ -205,6 +212,12 @@
 :onoremap < i<
 :onoremap w iw
 :onoremap W iW
+" Remapeando Visual Mode (como Operator-Pending)
+:vnoremap " i"
+:vnoremap ' i'
+:vnoremap ( i(
+:vnoremap [ i[
+:vnoremap { i{
 
 " Functions
 
@@ -233,7 +246,7 @@
 :			silent source ~/.vim/vimsessao.vim
 :			redraw!
 :			AirlineRefresh
-:			echom "Sessão inicializada com Sucesso!"
+:			echom "Sessão restaurada com Sucesso!"
 :		else
 "			A mensagem de erro atua como um throw exception, informando onde o erro aconteceu e a mensagem de erro
 :			echoerr "Arquivo ~/.vim/vimsessao.vim não existe! Criando arquivo vimsessao.vim"
@@ -296,6 +309,10 @@
 :autocmd FileType java :nnoremap <leader><C-j> :call CompilarJava()<cr>
 :autocmd FileType java,python :nnoremap <leader><C-k> :call RodarCodigo()<cr>
 :autocmd FileType python :inoremap ; :
+:autocmd FileType html :inoremap < <><esc>i
+
+" Compilar ST - utilizar escape sequence para pipeline nos comandos passados pelo VIM
+:autocmd BufWritePost config.h :!sudo make clean install
 
 " Templates de arquivos
 :autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
