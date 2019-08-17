@@ -5,8 +5,6 @@ if exists("syntax_on")
 endif
 let g:colors_name = "mycolors"
 highlight Normal		  ctermfg=white
-highlight Scrollbar	      guifg=darkcyan guibg=cyan
-highlight Menu			  guifg=black guibg=cyan
 highlight SpecialKey	  cterm=bold  ctermfg=darkred  
 highlight NonText		  cterm=bold  ctermfg=darkred 
 highlight Directory	      cterm=bold  ctermfg=lightblue  
@@ -22,7 +20,7 @@ highlight StatusLineNC    ctermfg=white ctermbg=lightblue
 highlight Title		      cterm=bold  ctermfg=darkmagenta  
 highlight Visual		  cterm=bold ctermfg=black ctermbg=white  
 highlight WarningMsg	  cterm=bold  ctermfg=darkred 
-highlight Cursor		  cterm=bold
+highlight Cursor		  cterm=reverse,italic
 highlight Comment		  cterm=bold,italic ctermfg=darkblue
 highlight Constant		  cterm=bold ctermfg=magenta  
 highlight Special		  cterm=bold ctermfg=red  
@@ -32,7 +30,7 @@ highlight PreProc		  ctermfg=darkmagenta
 highlight Type			  cterm=bold ctermfg=lightgreen  
 highlight Error		      ctermfg=darkcyan  ctermbg=black 
 highlight Todo			  ctermfg=black	ctermbg=darkcyan  
-highlight CursorLine	  cterm=bold ctermbg=242
+highlight CursorLine	  cterm=bold ctermbg=233
 highlight CursorColumn	  cterm=underline
 highlight TabLine		  cterm=bold ctermfg=lightblue ctermbg=white 
 highlight TabLineFill	  cterm=bold ctermfg=lightblue ctermbg=white 
@@ -41,10 +39,10 @@ highlight Underlined	  cterm=bold,underline ctermfg=lightblue
 highlight Ignore		  ctermfg=black ctermbg=black 
 highlight EndOfBuffer	  cterm=bold  ctermfg=darkred 
 highlight Pmenu           ctermbg=7   ctermfg=black
-highlight PmenuSel        ctermbg=242    ctermfg=7   cterm=bold
+highlight PmenuSel        ctermbg=233    ctermfg=7   cterm=bold
 highlight PmenuSbar       ctermbg=7    ctermfg=7
-highlight PmenuThumb      ctermbg=242    ctermfg=242
-highlight MatchParen      cterm=bold ctermbg=242    ctermfg=7
+highlight PmenuThumb      ctermbg=233    ctermfg=233
+highlight MatchParen      cterm=bold ctermbg=233    ctermfg=7
 highlight link IncSearch		Visual
 highlight link String			Constant
 highlight link Character		Constant
