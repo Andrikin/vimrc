@@ -27,7 +27,7 @@
 :let g:airline_section_warning=""
 :let g:airline#extensions#wordcount#enabled = 0
 " A data é atualizada caso algum comando seja executado (importante nos casos de fullscreen)
-:let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%d/%b %H:%M')}"
+:let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
 
 " variáveis tabline - airline powerline
 :let g:airline#extensions#tabline#show_tab_type = 0
@@ -123,8 +123,8 @@
 :nnoremap <S-TAB> gT
 
 " Configuração para PageUp PageDown
-:nnoremap J <C-f>
-:nnoremap K <C-b>
+":nnoremap J <C-f>
+":nnoremap K <C-b>
 
 " Final da linha/início da linha (encontra o primeiro/último caracter)
 :nnoremap H ^
@@ -143,8 +143,8 @@
 " Atalhos usando map <leader>
 
 " PageUp/PageDown
-:nnoremap <leader>K 19k
-:nnoremap <leader>J 19j
+:nnoremap K 19k
+:nnoremap J 19j
 
 " Abrir netrw File Manager
 :nnoremap <leader>ff :Texplore<cr>
@@ -316,6 +316,10 @@
 
 " Templates de arquivos
 :autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
+
+" Ao entrar no modo Insert, trocar o background
+:autocmd! InsertEnter * :set cursorline
+:autocmd! InsertLeave * :set nocursorline
 
 " Configurações para Plugin's
 :filetype indent plugin on
