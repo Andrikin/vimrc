@@ -13,7 +13,6 @@
 " Email: andrealexandreaguiar@gmail.com
 
 " Configurações utilizadas pelo Airline - Powerline
-":set rtp+=/home/andre/.local/lib/python2.7/site-packages/powerline/bindings/vim/ - Habilita Powerline-status (outro powerline)
 :set laststatus=2 
 :set showtabline=2 
 :set noshowmode 
@@ -317,7 +316,7 @@
 " Templates de arquivos
 :autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
 
-" Ao entrar no modo Insert, trocar o background
+" Ao entrar no modo Insert, trocar o background da linha
 :autocmd! InsertEnter * :set cursorline
 :autocmd! InsertLeave * :set nocursorline
 
