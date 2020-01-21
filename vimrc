@@ -1,4 +1,3 @@
-" TODO - Aprimorar o comando de 'Auto Quotation'
 "                                                __  __             __      ___
 "                                               |  \/  |            \ \    / (_)
 "                                               | \  / | ___ _   _   \ \  / / _ _ __ ___  _ __ ___
@@ -12,6 +11,8 @@
 " Autor: Andre Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 
+" TODO - Aprimorar o comando de 'Auto Quotation', adicionar comando para compilar arquivos na linguagem C (com implementação parecida com o que acontece com os arquivos Java)
+" Dependências: Vim Airline (plugin powerline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager)"
 " Configurações utilizadas pelo Airline - Powerline
 :set laststatus=2 
 :set showtabline=2 
@@ -148,6 +149,9 @@
 " Abrir netrw File Manager
 :nnoremap <leader>ff :Texplore<cr>
 
+" Transformar palavra para UpperCase
+:nnoremap <leader>u viwU
+
 " Sair sem salvar
 :nnoremap <leader>qq :q<cr>
 :inoremap <leader>qq <esc>:q<cr>
@@ -162,11 +166,8 @@
 " Configuração rápida do vimrc
 :nnoremap <leader>rc :tabedit $MYVIMRC<cr>
 
-" Transformar palavra para UpperCase
-:nnoremap <leader>u viwU
-
-" Source vimrc - Problema com Tabline do Airline Powerline (alguns caracteres perdiam a cor)
-:nnoremap <leader>xo :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
+" Source vimrc - Problema com Tabline do Airline Powerline (caracteres perdiam a cor)
+:nnoremap <leader>src :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
 
 " Sair salvando arquivo
 :inoremap <leader>qs <esc>ZZ
@@ -183,11 +184,13 @@
 :nnoremap <leader>nn :nohls<bar>:echo<cr>
 
 " Fechar telas abertas em :split
-:nnoremap <leader>qj <C-w><C-j>:q<cr>
+"":nnoremap <leader>qj <C-w><C-j>:q<cr>
 
 " Mudar para tela superior/inferior
-:nnoremap <leader>jm <C-w><C-j>
-:nnoremap <leader>ki <C-w><C-k>
+":nnoremap <leader>jm <C-w><C-j>
+":nnoremap <leader>ki <C-w><C-k>
+:nnoremap <leader>J <C-w><C-j>
+:nnoremap <leader>K <C-w><C-k>
 
 " Auto Indentação, trazendo o cursor para o local original
 :inoremap <leader><tab> <esc>magg=G`az.:w<cr>
@@ -272,45 +275,54 @@
 :	execute "normal! 2j"
 :endfunction
 
-" Funções para compilar e mostrar prováveis erros na tela do Vim
+" Funções para compilar e mostrar prováveis erros na tela do Vim (C, Java)
 " Acrescentado o comando :silent, o prompt retorna imediatamente
-:function! CompilarJava()
-:	if bufexists(bufname("log_java.txt"))
-:		bdelete log_java.txt
+:function! CompilarCodigo()
+:	let l:extencaoArquivo = expand("%:e")
+:	if l:extencaoArquivo ==? "java"
+:		if bufexists(bufname("log_java.txt"))
+:			bdelete log_java.txt
+:		endif
+:		silent !clear&&javac "%:t" &> /home/andre/.vim/log_java.txt
+:		silent !clear&&bash /home/andre/.vim/log_java_script.sh
+:		redraw!
+:		split /home/andre/.vim/log_java.txt
+:		resize 10
+:		execute "normal! \<C-w>\<C-k>"
+:	elseif l:extencaoArquivo ==? "c"
+:		!clear&&cc -Wall -g "%:t"&&rm a.out
 :	endif
-:	silent !clear&&javac "%:t" &> /home/andre/.vim/log_java.txt
-:	silent !clear&&bash /home/andre/.vim/log_java_script.sh
-:	redraw!
-:	split /home/andre/.vim/log_java.txt
-:	resize 10
-:	execute "normal! \<C-w>\<C-k>"
 :endfunction
 
-" Função para rodar código compilado
+" Função para rodar código compilado (C, Python, Java)
 :function! RodarCodigo()
 " Buscando saber qual comando deve ser executado 
-:	let l:nomeDoArquivo = expand("%:e")
-:	if l:nomeDoArquivo ==? "java"
+:	let l:extencaoArquivo = expand("%:e")
+:	if l:extencaoArquivo ==? "java"
 :		!clear&&java "%:t:r"
-:	elseif l:nomeDoArquivo ==? "py"
+:	elseif l:extencaoArquivo ==? "py"
 :		!clear&&python3 "%:t"
+:	elseif l:extencaoArquivo ==? "c"
+:		!clear&&tcc -run "%:t"
 :	endif
 :endfunction
 
 " Autocommands
 
+" Configuração para que a linha não tenha limite de fim
+:autocmd FileType * :set textwidth=0
+
 " Match pair para $MYVIMRC
 :autocmd FileType vim :set mps+=<:>
 :autocmd FileType vim :inoremap < <><esc>i
-:autocmd FileType vim :set textwidth=0
 
 " Atalhos para arquivos específicos
-:autocmd FileType java :nnoremap <leader><C-j> :call CompilarJava()<cr>
-:autocmd FileType java,python :nnoremap <leader><C-k> :call RodarCodigo()<cr>
+:autocmd FileType java,c :nnoremap <leader><C-j> :call CompilarCodigo()<cr>
+:autocmd FileType java,python,c :nnoremap <leader><C-k> :call RodarCodigo()<cr>
 :autocmd FileType python :inoremap ; :
 :autocmd FileType html :inoremap < <><esc>i
 
-" Compilar ST - utilizar escape sequence para pipeline nos comandos passados pelo VIM
+" Compilar Suckless config - utilizar escape sequence para pipeline nos comandos passados pelo VIM
 :autocmd BufWritePost config.h :!sudo make clean install
 
 " Templates de arquivos
