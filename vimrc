@@ -11,7 +11,8 @@
 " Autor: Andre Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 
-" TODO - Aprimorar o comando de 'Auto Quotation', adicionar comando para compilar arquivos na linguagem C (com implementação parecida com o que acontece com os arquivos Java)
+" TODO - Aprimorar o comando de 'Auto Quotation', modificar como Vim reconhece palavras
+
 " Dependências: Vim Airline (plugin powerline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager)"
 " Configurações utilizadas pelo Airline - Powerline
 :set laststatus=2 
@@ -170,15 +171,15 @@
 :nnoremap <leader>src :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
 
 " Sair salvando arquivo
-:inoremap <leader>qs <esc>ZZ
-:nnoremap <leader>qs ZZ
+:inoremap <leader>Q <esc>ZZ
+:nnoremap <leader>Q ZZ
 
 " Salvar arquivo
 :inoremap <leader>ss <esc>:w<cr>
 :nnoremap <leader>ss :w<cr>
 
 " Salvar todos os arquivos abertos (Modo Tab)
-:nnoremap <leader>wa :wa<bar>:echom "Todos os arquivos foram salvos!"<cr>
+:nnoremap <leader>W :wa<bar>:echom "Todos os arquivos foram salvos!"<cr>
 
 " Retirar modo highlight search (Encontrar comando melhor)
 :nnoremap <leader>nn :nohls<bar>:echo<cr>
@@ -204,6 +205,14 @@
 
 " Criando :mksession
 :nnoremap <leader>mk :call SalvarSessao()<cr>
+
+" Xclip - colar/copiar string usando seletor primary (xwindows). Também existe a opção com xsel
+:nnoremap <leader>v :read !xclip -o<cr>
+:vnoremap <leader>c y:call system('xclip', @0)<cr>
+
+" Substituir texto usando Visual mode para selecionar trechos a serem
+" substituídos
+:vnoremap <leader>S :s///g<Left><Left><Left>
 
 " Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
 :onoremap ( i(
