@@ -11,7 +11,7 @@
 " Autor: Andre Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 
-" TODO - Aprimorar o comando de 'Auto Quotation', modificar como Vim reconhece palavras
+" TODO - Aprender e configurar Vifm File Manager, Aprimorar o comando de 'Auto Quotation', modificando como Vim reconhece palavras
 
 " Dependências: Vim Airline (plugin powerline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager)"
 " Configurações utilizadas pelo Airline - Powerline
@@ -66,12 +66,28 @@
 " Esquema de Cor
 :colorscheme mycolors
 
-" Configuração de Netrw
+" Configuração de Netrw File Manager
+" Desabilitando Nertw
+:let g:netrwPlugin=1
 :let g:netrw_banner = 0
 :let g:netrw_winsize = 85
 :let g:netrw_liststyle = 0
 :let g:netrw_list_hide= '^\..*'
 :let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
+
+" Configuração do Vifm File Manager
+":let g:vifm_term="st -e"
+":let g:vifm_embed_term=1
+:let g:vifm="vifm"
+:let g:vifm_embed_split=1
+:let g:vifm_embed_cwd=1
+
+" Configuração de Nnn File Manager
+:let g:nnn#set_default_mappings=0
+:let g:nnn#statusline=0
+:let g:nnn#layout="tabnew"
+:let g:nnn#action={'<cr>':'tab split'}
+":let g:nnn#command='nnn -c'
 
 " Criando leader command
 :let mapleader = ","
@@ -148,7 +164,11 @@
 :nnoremap J 19j
 
 " Abrir netrw File Manager
-:nnoremap <leader>ff :Texplore<cr>
+":nnoremap <leader>ff :Texplore<cr>
+" Abrir Nnn File Manager
+:nnoremap <leader>ff :NnnPicker<cr>
+" Abrir Vifm File Manager
+":nnoremap <leader>ff :TabVifm<cr>
 
 " Transformar palavra para UpperCase
 :nnoremap <leader>u viwU
@@ -158,7 +178,7 @@
 :inoremap <leader>qq <esc>:q<cr>
 
 " Sair de todos os arquivos sem salvar
-:nnoremap <leader>qa :qa<cr>
+:nnoremap <leader>Q :qa<cr>
 
 " Sair de todos os arquivos, salvando todos
 :nnoremap <leader>wqa :wqa<cr>
@@ -171,8 +191,8 @@
 :nnoremap <leader>src :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
 
 " Sair salvando arquivo
-:inoremap <leader>Q <esc>ZZ
-:nnoremap <leader>Q ZZ
+:inoremap <leader>qs <esc>ZZ
+:nnoremap <leader>qs ZZ
 
 " Salvar arquivo
 :inoremap <leader>ss <esc>:w<cr>
