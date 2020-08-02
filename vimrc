@@ -153,9 +153,6 @@ nnoremap QW :wqa<cr>
 
 " Shortcut para :%s/\<\>\C//g, search-replace por todo arquivo (\<\> -> exactly match, \C -> case sensitive)
 nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
-" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-" Copiar palavra-alvo para register "s antes de utilizar este comando
-vnoremap S :s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Completition Files/tags
 inoremap <C-f> <C-x><C-f>
@@ -206,6 +203,9 @@ cmap <c-l> <plug>CapsLockToggle
 
 " Abrir Vifm File Manager
 " nnoremap <leader>ff :TabVifm<cr>
+
+" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
+vnoremap <leader>S :s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Mudar para tela superior/inferior
 nnoremap <leader>J <C-w><C-j>
