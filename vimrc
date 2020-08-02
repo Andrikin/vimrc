@@ -10,10 +10,10 @@
 "
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
+"
+" Dependências: Vim Airline (plugin powerline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager)" Surround, Comment, Capslock (tpope), NNN.vim, Emmet (HTML development)
 
-" TODO - Aprimorar o comando de 'Auto Quotation', modificando como Vim reconhece palavras
 
-" Dependências: Vim Airline (plugin powerline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager)"
 " Configurações utilizadas pelo Airline - Powerline
 set laststatus=2 
 set showtabline=2 
@@ -39,7 +39,11 @@ let g:airline#extensions#tabline#buffer_idx_mode = 0
 let g:airline#extensions#tabline#show_close_button = 0
 let g:airline#extensions#tabline#close_symbol = ""
 
-" Configurações do Lightline Powerline - Desativado
+" Esquema de Cor
+colorscheme mycolors
+
+" Configurações 8.2?
+syntax enable
 
 " Define como o Vim busca por arquivos
 set path+=**
@@ -61,49 +65,41 @@ set hlsearch
 
 " Configurações gerais
 set splitbelow
-set syntax=on.vim
 set autochdir
-set scrolloff=22
+set scrolloff=999
 set lazyredraw
+set backspace=2
 
-" Esquema de Cor
-colorscheme mycolors
 
 " Configuração de Netrw File Manager
 " Desabilitando Nertw
-let g:netrwPlugin=1
-let g:netrw_banner = 0
-let g:netrw_winsize = 85
-let g:netrw_liststyle = 0
-let g:netrw_list_hide= '^\..*'
-let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
+" let g:netrwPlugin=1
+" ----
+" let g:netrw_banner = 0
+" let g:netrw_winsize = 85
+" let g:netrw_liststyle = 0
+" let g:netrw_list_hide= '^\..*'
+" let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
 
 " Configuração do Vifm File Manager
-":let g:vifm_term="st -e"
-":let g:vifm_embed_term=1
-let g:vifm="vifm"
-let g:vifm_embed_split=1
-let g:vifm_embed_cwd=1
+" let g:vifm="vifm"
+" let g:vifm_embed_split=1
+" let g:vifm_embed_cwd=1
 
 " Configuração de Nnn File Manager
 let g:nnn#set_default_mappings=0
 let g:nnn#statusline=0
-let g:nnn#layout="tabnew"
+let g:nnn#layout={ 'window': { 'width': 0.9, 'height': 0.8, 'highlight': 'Statement' } } 
 let g:nnn#action={'<cr>':'tab split'}
-let g:nnn#command='nnn -eo'
+let g:nnn#command='nnn -o'
 
 " Criando leader command
 let mapleader = ","
 
 " Enter para pular uma linha no modo normal
 inoremap <cr> <C-m>
-nnoremap <cr> o
 
 " Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
-" nnoremap l e
-" nnoremap h b
-" vnoremap l e
-" vnoremap h b
 nnoremap j <Down>
 nnoremap k <Up>
 vnoremap j <Down>
@@ -112,26 +108,16 @@ nnoremap <BackSpace> X
 nnoremap <space> %
 vnoremap <space> %
 
+" Esc rápido no Insert/Visual Mode
+inoremap jj <esc>
+vnoremap vv <esc>
+
 " Configuracao para digitação rápida
 inoremap "" ""<Left>
 inoremap '' ''<Left>
 inoremap (( ()<Left>
 inoremap {{ {}<Left>
 inoremap [[ []<Left>
-
-" Configuração para navegation keys
-inoremap <C-h> <Left>
-inoremap <C-j> <Down>
-inoremap <C-k> <Up>
-inoremap <C-l> <Right>
-vnoremap <C-h> <Left>
-vnoremap <C-j> <Down>
-vnoremap <C-k> <Up>
-vnoremap <C-l> <Right>
-" <C-j> já está configurado para ser <Down>
-nnoremap <C-h> <Left>
-nnoremap <C-k> <Up>
-nnoremap <C-l> <Right>
 
 " Aumentar/diminuir números
 nnoremap _ <C-x>
@@ -141,15 +127,17 @@ nnoremap + <C-a>
 nnoremap <TAB> gt
 nnoremap <S-TAB> gT
 
-" Configuração para PageUp PageDown
-":nnoremap J <C-f>
-":nnoremap K <C-b>
-nnoremap K 19k
-nnoremap J 19j
+" Yank to end of line
+nnoremap Y yg_
 
-" Go to top/bottom marking last location
-nnoremap gg mlgg
-nnoremap G mlG
+" Configuração para PageUp PageDown
+nnoremap K :call ExactJump('k')<cr>
+nnoremap J :call ExactJump('j')<cr>
+
+" gg/G com mark (para retornar, utilizar o mark l)
+" nnoremap gg :<c-u>execute "normal! ml".v:count."gg"<cr>
+" nnoremap G :<c-u>execute "normal! ml".v:count."G"<cr>
+" Utilizar cursor move ``
 
 " Final da linha/início da linha (encontra o primeiro/último caracter)
 nnoremap H ^
@@ -157,9 +145,17 @@ vnoremap H ^
 nnoremap L g_
 vnoremap L g_
 
-" Esc rápido no Insert/Visual Mode
-inoremap jj <esc>
-vnoremap vv <esc>
+" Sair de todos os arquivos sem salvar
+nnoremap QQ :qa<cr>
+
+" Sair de todos os arquivos, salvando todos
+nnoremap QW :wqa<cr>
+
+" Shortcut para :%s/\<\>\C//g, search-replace por todo arquivo (\<\> -> exactly match, \C -> case sensitive)
+nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
+" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
+" Copiar palavra-alvo para register "s antes de utilizar este comando
+vnoremap S :s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Completition Files/tags
 inoremap <C-f> <C-x><C-f>
@@ -173,6 +169,7 @@ onoremap [ i[
 onoremap < i<
 onoremap w iw
 onoremap W iW
+
 " Remapeando Visual Mode (como Operator-Pending)
 vnoremap " i"
 vnoremap ' i'
@@ -181,35 +178,38 @@ vnoremap [ i[
 vnoremap { i{
 vnoremap w iw
 
+
+" Command line Remaps
+
+
+" Esc more fast
+cnoremap <esc> <c-c>
+
+" Back one character
+cnoremap <C-B> <Left>
+
+" Forward one character
+cnoremap <C-F> <Right>
+
+" Vim-capslock in command line
+cmap <c-l> <plug>CapsLockToggle
+
+
 " Atalhos usando [ map <leader> ]
+
 
 " Abrir netrw File Manager
 ":nnoremap <leader>ff :Texplore<cr>
 
 " Abrir Nnn File Manager
-":nnoremap <leader>ff :NnnPicker<cr>
-":nnoremap <leader>ff :call NnnOpen()<cr>
+:nnoremap <leader>ff :NnnPicker '%:p:h'<cr>
 
 " Abrir Vifm File Manager
-nnoremap <leader>ff :TabVifm<cr>
-
-" Transformar palavra para UpperCase
-nnoremap <leader>u viwU
+" nnoremap <leader>ff :TabVifm<cr>
 
 " Mudar para tela superior/inferior
 nnoremap <leader>J <C-w><C-j>
 nnoremap <leader>K <C-w><C-k>
-
-" Sair sem salvar
-nnoremap <leader>qq :q!<cr>
-inoremap <leader>qq <esc>:q!<cr>
-
-" Sair de todos os arquivos sem salvar
-nnoremap <leader>QQ :qa<cr>
-
-" Sair de todos os arquivos, salvando todos
-nnoremap <leader>QW :wqa<cr>
-inoremap <leader>QW <esc>:wqa<cr>
 
 " Configuração rápida do vimrc
 nnoremap <leader>rc :tabedit $MYVIMRC<cr>
@@ -218,45 +218,49 @@ nnoremap <leader>rc :tabedit $MYVIMRC<cr>
 nnoremap <leader>src :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
 
 " Sair salvando arquivo
-inoremap <leader>qw <esc>ZZ
-nnoremap <leader>qw ZZ
+" inoremap <leader>qw <esc>ZZ
+" nnoremap <leader>qw ZZ
+" Utilizar os comandos nativos!
+
+" Sair sem salvar
+" nnoremap <leader>qq ZQ
+" inoremap <leader>qq <esc>ZQ
+" Utilizar os comandos nativos!
 
 " Salvar arquivo
 inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
-" Salvar todos os arquivos abertos (Modo Tab)
-nnoremap <leader>W :wa<bar>:echom "Todos os arquivos foram salvos!"<cr>
-
 " Retirar modo highlight search (Encontrar comando melhor)
 nnoremap <leader>nn :nohls<bar>:echo<cr>
-
-" Auto Indentação, trazendo o cursor para o local original
-inoremap <leader><tab> <esc>magg=G`az.:w<cr>
-nnoremap <leader><tab> magg=G`az.:w<cr>
 
 " Criando :mksession
 nnoremap <leader>mk :call SalvarSessao()<cr>
 
-" Xclip - colar/copiar string usando seletor primary (xwindows). Também existe a opção com xsel
-nnoremap <leader>v :call ColarTexto()<cr>"tP<bar>:echom "Seleção colada do clipboard!"<cr>
-vnoremap <leader>c y:call system('xsel -i -b', @0)<bar>:echom "Seleção copiada para clipboard!"<cr>
-
-" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-vnoremap <leader>S :s///g<Left><Left><Left>
-" Shortcut para :%s///g
-nnoremap <leader>S :%s///g<Left><Left><Left>
-
-" Pular um caracter no insert mode
-inoremap <leader><space> <Right>
-
+" Colar e copiar do clipboard ("* -> selection register, middle mouse button/ "+ -> system register)
+nnoremap <leader>v "+P
+vnoremap <leader>c "+y
 
 " Functions
 
-" Colar texto do clipboard do sistema
-function! ColarTexto()
-	let @t=system("xsel -o -b")
+" Obter número exato de lines para usar com os comandos K:J
+let g:exact_jump_num_lines=system("tput lines")/2 - 2
+function! ExactJump(letter) 
+	if a:letter ==? 'k'
+		execute 'normal! ' . g:exact_jump_num_lines . 'k'
+	elseif a:letter ==? 'j'
+		execute 'normal! ' . g:exact_jump_num_lines . 'j'
+	endif
 endfunction
+
+" " Colar texto do clipboard do sistema
+" function! ColarTexto()
+" 	let @p=system("xsel -o -b")
+" endfunction
+
+" function! CopiarTexto()
+" 	call system('xsel -i -b', @0)
+" endfunction
 
 function! EliminarHidBuf()
 	let id_ultimo_buf=bufnr("$")
@@ -343,24 +347,6 @@ function! RodarCodigo()
 	endif
 endfunction
 
-" " Função para utilizar o comando :earlier
-" " Função incompleta
-" " Utilizar autocommand-event: CursorMoved
-" " Falta lógica para determinar a hora de 'início'
-" function! EarlierUndo()
-" 	" Início
-" 	let l:marcador_hora=strftime('%H')
-" 	let l:marcador_minuto=strftime('%M')
-" 	" Atual
-" 	let l:hora=strftime('%H')
-" 	let l:minuto=strftime('%M')
-" 	" Cálculo do tempo em minutos
-" 	let l:cal_hora=l:hora - l:marcador_hora
-" 	let l:cal_minuto=l:minuto - l:marcador_minuto
-" 	" Resultado para ir no comando earlier l:cmd_time
-" 	let l:cmd_time=l:cal_hora * 60 + l:cal_minuto
-" endfunction
-
 " Autocommands
 
 " Configuração para que a linha não tenha limite de fim
@@ -371,9 +357,9 @@ autocmd FileType vim :set mps+=<:>
 autocmd FileType vim :inoremap < <><esc>i
 
 " Atalhos para arquivos específicos
+autocmd FileType python :inoremap ; :
 autocmd FileType java,c :nnoremap <leader><C-j> :call CompilarCodigo()<cr>
 autocmd FileType java,python,c :nnoremap <leader><C-k> :call RodarCodigo()<cr>
-autocmd FileType python :inoremap ; :
 autocmd FileType html :inoremap < <><esc>i
 
 " Configuração para comentstring [plugin commentary.vim]
@@ -392,11 +378,15 @@ autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
 autocmd! InsertEnter * :set cursorline
 autocmd! InsertLeave * :set nocursorline
 
+" Enable Emmet plugin just for html, css files
+let g:user_emmet_install_global = 0
+autocmd FileType html,css EmmetInstall
+
 " Configurações para Plugin's
 filetype indent plugin on
 
 " Executa o Pathongen (Gerenciador de Plugin's)
 execute pathogen#infect()
 
-" Modifiquei o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
+" Modifique o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
 " Alterei os valores nnoremap de <cr>, -, %, r, D, d, R para respectivamente (l, h, f, R, d, n, r)
