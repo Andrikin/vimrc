@@ -22,6 +22,7 @@ set t_Co=256
 let g:airline_powerline_fonts=1
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#tabline#formatter = "unique_tail"
+" let g:airline#extensions#capslock#enabled = 1
 
 " Variáveis que modificam statusline - Airline Powerline
 let g:airline_section_error=""
@@ -81,11 +82,6 @@ set backspace=2
 " let g:netrw_list_hide= '^\..*'
 " let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
 
-" Configuração do Vifm File Manager
-" let g:vifm="vifm"
-" let g:vifm_embed_split=1
-" let g:vifm_embed_cwd=1
-
 " Configuração de Nnn File Manager
 let g:nnn#set_default_mappings=0
 let g:nnn#statusline=0
@@ -99,11 +95,6 @@ let mapleader = ","
 " Enter para pular uma linha no modo normal
 inoremap <cr> <C-m>
 
-" Remapeando as teclas de movimentação - :nnoremap (Normal Mode) no recursive
-nnoremap j <Down>
-nnoremap k <Up>
-vnoremap j <Down>
-vnoremap k <Up>
 nnoremap <BackSpace> X
 nnoremap <space> %
 vnoremap <space> %
@@ -112,7 +103,7 @@ vnoremap <space> %
 inoremap jj <esc>
 vnoremap vv <esc>
 
-" Configuracao para digitação rápida
+" Configuração para digitação rápida
 inoremap "" ""<Left>
 inoremap '' ''<Left>
 inoremap (( ()<Left>
@@ -130,14 +121,12 @@ nnoremap <S-TAB> gT
 " Yank to end of line
 nnoremap Y yg_
 
+" Remapeando ` (move cursor to column)
+nnoremap ' `
+
 " Configuração para PageUp PageDown
 nnoremap K :call ExactJump('k')<cr>
 nnoremap J :call ExactJump('j')<cr>
-
-" gg/G com mark (para retornar, utilizar o mark l)
-" nnoremap gg :<c-u>execute "normal! ml".v:count."gg"<cr>
-" nnoremap G :<c-u>execute "normal! ml".v:count."G"<cr>
-" Utilizar cursor move ``
 
 " Final da linha/início da linha (encontra o primeiro/último caracter)
 nnoremap H ^
@@ -157,25 +146,6 @@ nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
 " Completition Files/tags
 inoremap <C-f> <C-x><C-f>
 
-" Configuração para Operator-Pending Mapping (ao entrar com um comando, este espera por um Operator-Pending)
-onoremap " i"
-onoremap ( i(
-onoremap { i{
-onoremap [ i[
-":onoremap ' i'
-onoremap < i<
-onoremap w iw
-onoremap W iW
-
-" Remapeando Visual Mode (como Operator-Pending)
-vnoremap " i"
-vnoremap ' i'
-vnoremap ( i(
-vnoremap [ i[
-vnoremap { i{
-vnoremap w iw
-
-
 " Command line Remaps
 
 
@@ -191,7 +161,6 @@ cnoremap <C-F> <Right>
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
 
-
 " Atalhos usando [ map <leader> ]
 
 
@@ -199,13 +168,10 @@ cmap <c-l> <plug>CapsLockToggle
 ":nnoremap <leader>ff :Texplore<cr>
 
 " Abrir Nnn File Manager
-:nnoremap <leader>ff :NnnPicker '%:p:h'<cr>
-
-" Abrir Vifm File Manager
-" nnoremap <leader>ff :TabVifm<cr>
+nnoremap <leader>ff :NnnPicker '%:p:h'<cr>
 
 " Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-vnoremap <leader>S :s/\<<c-r><c-w>\>\C//g<Left><Left>
+" vnoremap <leader>S :s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Mudar para tela superior/inferior
 nnoremap <leader>J <C-w><C-j>
@@ -216,16 +182,6 @@ nnoremap <leader>rc :tabedit $MYVIMRC<cr>
 
 " Source vimrc - Problema com Tabline do Airline Powerline (caracteres perdiam a cor)
 nnoremap <leader>src :source $MYVIMRC<bar>:call RecarregarVimrc()<bar>:nohls<cr>
-
-" Sair salvando arquivo
-" inoremap <leader>qw <esc>ZZ
-" nnoremap <leader>qw ZZ
-" Utilizar os comandos nativos!
-
-" Sair sem salvar
-" nnoremap <leader>qq ZQ
-" inoremap <leader>qq <esc>ZQ
-" Utilizar os comandos nativos!
 
 " Salvar arquivo
 inoremap <leader>w <esc>:w<cr>
@@ -349,6 +305,7 @@ endfunction
 
 " Autocommands
 
+
 " Configuração para que a linha não tenha limite de fim
 autocmd FileType * :set textwidth=0
 
@@ -377,6 +334,10 @@ autocmd FileType java :nnoremap <leader>java :call TemplateJava()<cr>
 " Ao entrar no modo Insert, trocar o background da linha
 autocmd! InsertEnter * :set cursorline
 autocmd! InsertLeave * :set nocursorline
+
+" Refresh Command mode statusline
+autocmd CmdlineEnter * redraws!
+autocmd CmdlineChanged * redraws!
 
 " Enable Emmet plugin just for html, css files
 let g:user_emmet_install_global = 0
