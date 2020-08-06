@@ -3,15 +3,22 @@
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 "
-" Dependências: vim-airline (statusline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager), [Surround, Comment, Capslock](tpope), NNN.vim, Emmet (HTML development), vim-cool(exit hlsearch automaticaly)
+" Dependências: vim-airline (statusline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager), [Surround, Comment, Capslock](tpope), NNN.vim, Emmet (HTML development), vim-cool(exit hlsearch automaticaly), Hexokinase (Hexadecimal colors)
+
+" --- True Colors ---
+"  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
+"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
+let &t_8f = "\033[38;2;%lu;%lu;%lum"
+let &t_8b = "\033[48;2;%lu;%lu;%lum"
+set termguicolors
 
 " --- vim-airline ---
 " Configurações utilizadas pelo Airline - Powerline
+set t_Co=256
 set laststatus=2 
 set showtabline=2 
 set noshowmode 
-set t_Co=256
-let g:airline_theme='simple'
+let g:airline_theme='molokai'
 let g:airline_powerline_fonts=1
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#tabline#formatter = "unique_tail"
@@ -29,7 +36,8 @@ let g:airline#extensions#tabline#show_close_button = 0
 let g:airline#extensions#tabline#close_symbol = ""
 
 " Esquema de Cor
-colorscheme mycolors
+" colorscheme mycolors
+colorscheme molokai
 
 " Configurações para Plugin's
 filetype indent plugin on
@@ -64,8 +72,7 @@ set lazyredraw
 set backspace=2
 set helpheight=0
 
-" Configuração de Netrw File Manager
-" ----
+" --- Netrw File Manager ---
 let g:Netrw_UserMaps = [
 	\['l', 'UserMapping_enter'],
 	\['h', 'UserMapping_return'],
@@ -91,11 +98,11 @@ let g:nnn#layout={ 'window': { 'width': 0.9, 'height': 0.8, 'highlight': 'Statem
 let g:nnn#action={'<cr>':'tab split'}
 let g:nnn#command='nnn -o'
 
+" --- Hexokinase ---
+let g:Hexokinase_highlighters = ['backgroundfull']
+
 " Criando leader command
 let mapleader = ","
-
-" Enter para pular uma linha no modo normal
-" inoremap <cr> <C-m>
 
 nnoremap <BackSpace> X
 nnoremap <space> %
