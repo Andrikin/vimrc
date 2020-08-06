@@ -149,6 +149,9 @@ nnoremap QW :wqa<cr>
 " \C - case sensitive
 nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
 
+" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
+vnoremap <leader>S mvy`v"syiw:'<,'>s/\<<c-r>s\>\C//g<Left><Left>
+
 " Completition Files/tags
 inoremap <C-f> <C-x><C-f>
 
@@ -173,14 +176,11 @@ cmap <c-l> <plug>CapsLockToggle
 " Abrir Nnn File Manager
 " nnoremap <leader>ff :NnnPicker '%:p:h'<cr>
 
-" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-" vnoremap <leader>S :s/\<<c-r><c-w>\>\C//g<Left><Left>
-
 " Configuração rápida do vimrc
 nnoremap <leader>rc :tabedit $MYVIMRC<cr>
 
 " Source vimrc - Problema com Tabline do Airline Powerline (caracteres perdiam a cor)
-nnoremap <leader>src :silent source $MYVIMRC<bar>:call RecarregarVimrc()<cr>
+nnoremap <leader>src :w<bar>:source $MYVIMRC<bar>:call UpdateVimRc()<cr>
 
 " Salvar arquivo
 inoremap <leader>w <esc>:w<cr>
@@ -240,7 +240,7 @@ function! SalvarSessao() abort
 	endif
 endfunction
 
-function! RecarregarVimrc() abort
+function! UpdateVimRc() abort
 	AirlineRefresh
 "	Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
 	silent e
