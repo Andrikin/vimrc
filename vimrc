@@ -5,45 +5,11 @@
 "
 " Dependências: vim-airline (statusline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager), [Surround, Comment, Capslock](tpope), NNN.vim, Emmet (HTML development), vim-cool(exit hlsearch automaticaly), Hexokinase (Hexadecimal colors)
 
-" --- True Colors ---
-"  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
-"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
-let &t_8f = "\033[38;2;%lu;%lu;%lum"
-let &t_8b = "\033[48;2;%lu;%lu;%lum"
-set termguicolors
-
-" --- vim-airline ---
-" Configurações utilizadas pelo Airline - Powerline
-set t_Co=256
-set laststatus=2 
-set showtabline=2 
-set noshowmode 
-let g:airline_theme='molokai'
-let g:airline_powerline_fonts=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline#extensions#tabline#formatter = "unique_tail"
-let g:airline_section_error=""
-let g:airline_section_warning=""
-let g:airline#extensions#wordcount#enabled = 0
-" A data é atualizada caso algum comando seja executado (importante nos casos de fullscreen)
-let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline#extensions#tabline#show_tab_count = 0
-let g:airline#extensions#tabline#show_tab_nr = 0
-let g:airline#extensions#tabline#show_buffers = 0
-let g:airline#extensions#tabline#buffer_idx_mode = 0
-let g:airline#extensions#tabline#show_close_button = 0
-let g:airline#extensions#tabline#close_symbol = ""
-
-" Esquema de Cor
-" colorscheme mycolors
-colorscheme molokai
-
-" Configurações para Plugin's
+" plugin - verifica por $RUNTIMEPATH/ftplugin
+" indent - verifica por $RUNTIMEPATH/indent
 filetype indent plugin on
-
-" Configurações 8.2?
 syntax enable
+colorscheme molokai
 
 " --- Configurations ---
 " Define como o Vim busca por arquivos
@@ -70,7 +36,45 @@ set autochdir
 set scrolloff=999
 set lazyredraw
 set backspace=2
-set helpheight=0
+set helpheight=999
+" Usando ripgrep (copen; cfdo {cmd} | update)
+set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+" Problems that can occur in vim session can be avoid by this configuration
+set sessionoptions-=options
+set encoding=utf-8
+set shell=/usr/bin/env\ bash
+" When a file is modified outside Vim, buffer with be updated
+set autoread
+set tabpagemax=50
+
+" --- True Colors ---
+"  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
+"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
+set termguicolors
+let &t_8f = "\033[38;2;%lu;%lu;%lum"
+let &t_8b = "\033[48;2;%lu;%lu;%lum"
+
+" --- vim-airline ---
+set t_Co=256
+set laststatus=2 
+set showtabline=2 
+set noshowmode 
+let g:airline_theme='molokai'
+let g:airline_powerline_fonts=1
+let g:airline#extensions#tabline#enabled=1
+let g:airline#extensions#tabline#formatter = "unique_tail"
+let g:airline_section_error=""
+let g:airline_section_warning=""
+let g:airline#extensions#wordcount#enabled = 0
+" A data é atualizada caso algum comando seja executado (importante nos casos de fullscreen)
+let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
+let g:airline#extensions#tabline#show_tab_type = 0
+let g:airline#extensions#tabline#show_tab_count = 0
+let g:airline#extensions#tabline#show_tab_nr = 0
+let g:airline#extensions#tabline#show_buffers = 0
+let g:airline#extensions#tabline#buffer_idx_mode = 0
+let g:airline#extensions#tabline#show_close_button = 0
+let g:airline#extensions#tabline#close_symbol = ""
 
 " --- Netrw File Manager ---
 let g:Netrw_UserMaps = [
@@ -86,20 +90,22 @@ let g:netrw_keepdir = 0
 let g:netrw_banner = 0
 let g:netrw_liststyle = 0
 let g:netrw_list_hide= '^\..*'
-" let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
 let g:netrw_browse_split = 0
 let g:netrw_winsize = 50
 
-" Configuração de Nnn File Manager
-let g:nnn#set_default_mappings=0
-let g:nnn#statusline=0
-let g:nnn#layout={ 'window': { 'width': 0.9, 'height': 0.8, 'highlight': 'Statement' } } 
-let g:nnn#action={'<cr>':'tab split'}
-let g:nnn#command='nnn -o'
+" " Configuração de Nnn File Manager
+" let g:nnn#set_default_mappings=0
+" let g:nnn#statusline=0
+" let g:nnn#layout={ 'window': { 'width': 0.9, 'height': 0.8, 'highlight': 'Statement' } } 
+" let g:nnn#action={'<cr>':'tab split'}
+" let g:nnn#command='nnn -o'
 
 " --- Hexokinase ---
 let g:Hexokinase_highlighters = ['backgroundfull']
+
+" --- Emmet ---
+let g:user_emmet_install_global = 0
 
 " Criando leader command
 let mapleader = ","
@@ -118,10 +124,6 @@ inoremap '' ''<Left>
 inoremap (( ()<Left>
 inoremap {{ {}<Left>
 inoremap [[ []<Left>
-
-" Aumentar/diminuir números
-nnoremap _ <C-x>
-nnoremap + <C-a>
 
 " Configuração troca de guias
 nnoremap <TAB> gt
@@ -159,20 +161,15 @@ nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
 " Substituir texto usando Visual mode para selecionar trechos a serem substituídos
 vnoremap <leader>S mvy`v"syiw:'<,'>s/\<<c-r>s\>\C//g<Left><Left>
 
-" Completition Files/tags
-inoremap <C-f> <C-x><C-f>
-
 " Esc more fast
 vnoremap <esc> <c-c>
 cnoremap <esc> <c-c>
 
+" <c-g>u -> new undoable edit - Experimental
+" inoremap <c-w> <c-g>u<c-w>
+" inoremap <c-u> <c-g>u<c-u>
+
 " --- Cmdline ---
-" Back one character
-cnoremap <C-B> <Left>
-
-" Forward one character
-cnoremap <C-F> <Right>
-
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
 
@@ -255,13 +252,6 @@ function! UpdateVimRc() abort
 	redraw! | echom "Configurações do arquivo vimrc atualizadas!"
 endfunction
 
-" Preenchimento de Template
-function! TemplateJava() abort
-	0read /home/andre/.vim/.esqueleto.java
-	execute "normal! fTciw" . expand("%:t:r")
-	execute "normal! 2j"
-endfunction
-
 " Funções para compilar e mostrar prováveis erros na tela do Vim (C, Java)
 " Acrescentado o comando :silent, o prompt retorna imediatamente
 function! CompilarCodigo() abort
@@ -296,7 +286,7 @@ function! RodarCodigo() abort
 endfunction
 
 " User Functions Mappings for Netrw 
-" Modifique o arquivo netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
+" Netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
 " Alterei os valores nnoremap de <cr>, -, %, D, d, R, a
 function! UserMapping_enter(islocal) abort
 	return "normal \<plug>NetrwLocalBrowseCheck"
@@ -376,9 +366,4 @@ autocmd CleanHouse CmdlineEnter * redraws
 autocmd CleanHouse CmdlineChanged * redraws
 
 " Enable Emmet plugin just for html, css files
-let g:user_emmet_install_global = 0
 autocmd CleanHouse FileType html,css EmmetInstall
-
-" --- Pathogen Manager ---
-" Executa o Pathongen (Gerenciador de Plugin's)
-execute pathogen#infect()
