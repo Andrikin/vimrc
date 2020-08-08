@@ -47,6 +47,12 @@ set shell=/usr/bin/env\ bash
 set autoread
 set tabpagemax=50
 
+" Statusline
+set t_Co=256
+set laststatus=2 
+set showtabline=2 
+set noshowmode 
+
 " --- True Colors ---
 "  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
 "  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
@@ -54,27 +60,58 @@ set termguicolors
 let &t_8f = "\033[38;2;%lu;%lu;%lum"
 let &t_8b = "\033[48;2;%lu;%lu;%lum"
 
-" --- vim-airline ---
-set t_Co=256
-set laststatus=2 
-set showtabline=2 
-set noshowmode 
-let g:airline_theme='molokai'
-let g:airline_powerline_fonts=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline#extensions#tabline#formatter = "unique_tail"
-let g:airline_section_error=""
-let g:airline_section_warning=""
-let g:airline#extensions#wordcount#enabled = 0
-" A data é atualizada caso algum comando seja executado (importante nos casos de fullscreen)
-let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline#extensions#tabline#show_tab_count = 0
-let g:airline#extensions#tabline#show_tab_nr = 0
-let g:airline#extensions#tabline#show_buffers = 0
-let g:airline#extensions#tabline#buffer_idx_mode = 0
-let g:airline#extensions#tabline#show_close_button = 0
-let g:airline#extensions#tabline#close_symbol = ""
+" " --- vim-airline ---
+" let g:airline_theme='molokai'
+" let g:airline_powerline_fonts=1
+" let g:airline#extensions#tabline#enabled=1
+" let g:airline#extensions#tabline#formatter = "unique_tail"
+" let g:airline_section_error=""
+" let g:airline_section_warning=""
+" let g:airline#extensions#wordcount#enabled = 0
+" " A hora é atualizada caso algum comando seja executado
+" let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
+" let g:airline#extensions#tabline#show_tab_type = 0
+" let g:airline#extensions#tabline#show_tab_count = 0
+" let g:airline#extensions#tabline#show_tab_nr = 0
+" let g:airline#extensions#tabline#show_buffers = 0
+" let g:airline#extensions#tabline#buffer_idx_mode = 0
+" let g:airline#extensions#tabline#show_close_button = 0
+
+" --- lightline ---
+" Removed options
+			" \	'right': [
+			" \		['lineinfo'],
+			" \		['percent'],
+			" \		['fileformat', 'fileencoding', 'filetype'],
+			" \		],
+			" \	'gitbranch': 'LightlineGitbranch',
+let g:lightline = {
+			\ 'colorscheme': 'molokai',
+			\ 'separator': { 'left': '', 'right': '' },
+			\ 'subseparator': { 'left': '', 'right': '' },
+			\ 'tabline': {
+			\	'left': [['tabs']],
+			\ },
+			\ 'active': {
+			\	'left': [
+			\		['mode', 'paste'],
+			\		['readonly', 'filename'],
+			\		],
+			\	},
+			\ 'component': {
+			\	'close': '',
+			\	'lineinfo': '%l/%L%<',
+			\	},
+			\ 'component_function': {
+			\	'mode': 'LightlineMode',
+			\	'readonly': 'LightlineReadonly',
+			\	'filename': 'LightlineFilename',
+			\	},
+			\ 'tab': {
+			\	'active': ['filename', 'modified'],
+			\	'inactive': ['filename', 'modified'],
+			\	},
+			\ }
 
 " --- Netrw File Manager ---
 let g:Netrw_UserMaps = [
@@ -210,16 +247,16 @@ vnoremap <leader>c "+y
 function! EliminarHidBuf() abort
 	let l:lastbid=bufnr("$")
 	for id in range(1, lastbid) 
-		if bufloaded(id)==0&&buflisted(id)
+		if bufloaded(id) == 0 && buflisted(id)
 			execute "silent bdelete " . id 
 		endif
 	endfor
 endfunction
 
 function! SalvarSessao() abort
-	let l:answer=confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
+	let l:answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
-	if l:answer==1
+	if l:answer == 1 
 		call EliminarHidBuf()
 		silent !rm ~/.vim/vimsessao.vim
 		silent mksession ~/.vim/vimsessao.vim
@@ -227,11 +264,11 @@ function! SalvarSessao() abort
 		redraw!
 		echom "Sessão e arquivos salvos com Sucesso!"
 "	Abrir sessão anterior
-	elseif l:answer==2
+	elseif l:answer == 2
 		if filereadable("/home/andre/.vim/vimsessao.vim")
 			silent source ~/.vim/vimsessao.vim
 			redraw!
-			AirlineRefresh
+			" AirlineRefresh
 			echom "Sessão restaurada com Sucesso!"
 		else
 "			A mensagem de erro atua como um throw exception, informando onde o erro aconteceu e a mensagem de erro
@@ -245,11 +282,12 @@ function! SalvarSessao() abort
 endfunction
 
 function! UpdateVimRc() abort
-	AirlineRefresh
+	" AirlineRefresh
 "	Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
 	silent e
 "	Comando :redraw redesenha a janela. Com a partícula [!], primeiramente limpa a janela e depois redesenha
-	redraw! | echom "Configurações do arquivo vimrc atualizadas!"
+	redraw!
+   	echom "Configurações do arquivo vimrc atualizadas!"
 endfunction
 
 " Funções para compilar e mostrar prováveis erros na tela do Vim (C, Java)
@@ -326,44 +364,61 @@ function! UserMapping_exit(islocal) abort
 	return "normal ZQ"
 endfunction
 
+ " --- Lightline Funcions --- 
+ function! LightlineMode() abort
+ 	return lightline#mode() . ' ' . CapsLockStatusline()
+ endfunction
+
+function! LightlineReadonly() abort
+	return &readonly ? '' : ''
+endfunction
+
+function! LightlineFilename() abort
+	let l:filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+	let l:modified = &modified ? ' +' : ''
+	return l:filename . l:modified 
+endfunction
+
+" function! LightlineGitbranch() abort
+" endfunction
+
 " --- Autocommands ---
-" Reset de todos os autocmd (criar augroup's para cada tipo de autocmd?)
-augroup CleanHouse
-	au!
+" Reset de todos os autocmd
+augroup vimrc
+	autocmd!
 augroup END
 
 " Configuração para que a linha não tenha limite de fim
-autocmd CleanHouse FileType * set textwidth=0
+autocmd vimrc FileType * set textwidth=0
 
 " Match pair para $MYVIMRC
-autocmd CleanHouse FileType vim set mps+=<:>
-autocmd CleanHouse FileType vim inoremap < <><esc>i
+autocmd vimrc FileType vim set mps+=<:>
+autocmd vimrc FileType vim inoremap < <><esc>i
 
 " Atalhos para arquivos específicos
-autocmd CleanHouse FileType python inoremap ; :
-autocmd CleanHouse FileType java,c nnoremap <leader><C-j> :call CompilarCodigo()<cr>
-autocmd CleanHouse FileType java,python,c nnoremap <leader><C-k> :call RodarCodigo()<cr>
-autocmd CleanHouse FileType html inoremap < <><esc>i
+autocmd vimrc FileType python inoremap ; :
+autocmd vimrc FileType java,c nnoremap <leader><C-j> :call CompilarCodigo()<cr>
+autocmd vimrc FileType java,python,c nnoremap <leader><C-k> :call RodarCodigo()<cr>
+autocmd vimrc FileType html inoremap < <><esc>i
 
 " Configuração para comentstring [plugin commentary.vim]
-autocmd CleanHouse FileType sh,bash setlocal commentstring=#\ %s
-autocmd CleanHouse FileType c setlocal commentstring=/*\ %s\ */
-autocmd CleanHouse FileType java setlocal commentstring=//\ %s
-autocmd CleanHouse FileType vim setlocal commentstring=\"\ %s
+autocmd vimrc FileType sh,bash setlocal commentstring=#\ %s
+autocmd vimrc FileType c setlocal commentstring=/*\ %s\ */
+autocmd vimrc FileType java setlocal commentstring=//\ %s
+autocmd vimrc FileType vim setlocal commentstring=\"\ %s
 
 " Compilar Suckless config - utilizar escape sequence para pipeline nos comandos passados pelo VIM
-autocmd CleanHouse BufWritePost config.h :!sudo make clean install
+autocmd vimrc BufWritePost config.h :!sudo make clean install
 
 " Templates de arquivos
-autocmd CleanHouse FileType java nnoremap <leader>java :call TemplateJava()<cr>
+autocmd vimrc FileType java nnoremap <leader>java :call TemplateJava()<cr>
 
 " Ao entrar no modo Insert, trocar o background da linha
-autocmd CleanHouse InsertEnter * set cursorline
-autocmd CleanHouse InsertLeave * set nocursorline
+autocmd vimrc InsertEnter * set cursorline
+autocmd vimrc InsertLeave * set nocursorline
 
 " Refresh Command mode statusline
-autocmd CleanHouse CmdlineEnter * redraws
-autocmd CleanHouse CmdlineChanged * redraws
+autocmd vimrc CmdlineEnter,CmdlineChanged * redraws
 
 " Enable Emmet plugin just for html, css files
-autocmd CleanHouse FileType html,css EmmetInstall
+autocmd vimrc FileType html,css EmmetInstall
