@@ -1,9 +1,9 @@
-" Minhas Configurações VIM
+" $MYVIMRC
 "
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
-"
-" Dependências: vim-airline (statusline), traces (plugin highlights patterns and ranges for Ex commands), Pathogen (plugin manager), [Surround, Comment, Capslock](tpope), NNN.vim, Emmet (HTML development), vim-cool(exit hlsearch automaticaly), Hexokinase (Hexadecimal colors)
+" Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase
+
 
 " plugin - verifica por $RUNTIMEPATH/ftplugin
 " indent - verifica por $RUNTIMEPATH/indent
@@ -12,6 +12,7 @@ syntax enable
 colorscheme molokai
 
 " --- Configurations ---
+
 " Define como o Vim busca por arquivos
 set path+=**
 
@@ -60,31 +61,8 @@ set termguicolors
 let &t_8f = "\033[38;2;%lu;%lu;%lum"
 let &t_8b = "\033[48;2;%lu;%lu;%lum"
 
-" " --- vim-airline ---
-" let g:airline_theme='molokai'
-" let g:airline_powerline_fonts=1
-" let g:airline#extensions#tabline#enabled=1
-" let g:airline#extensions#tabline#formatter = "unique_tail"
-" let g:airline_section_error=""
-" let g:airline_section_warning=""
-" let g:airline#extensions#wordcount#enabled = 0
-" " A hora é atualizada caso algum comando seja executado
-" let g:airline_section_z="%#__accent_bold#%p%% line:%l/%L %{strftime('%H:%M')}"
-" let g:airline#extensions#tabline#show_tab_type = 0
-" let g:airline#extensions#tabline#show_tab_count = 0
-" let g:airline#extensions#tabline#show_tab_nr = 0
-" let g:airline#extensions#tabline#show_buffers = 0
-" let g:airline#extensions#tabline#buffer_idx_mode = 0
-" let g:airline#extensions#tabline#show_close_button = 0
-
 " --- lightline ---
 " Removed options
-			" \	'right': [
-			" \		['lineinfo'],
-			" \		['percent'],
-			" \		['fileformat', 'fileencoding', 'filetype'],
-			" \		],
-			" \	'gitbranch': 'LightlineGitbranch',
 let g:lightline = {
 			\ 'colorscheme': 'molokai',
 			\ 'separator': { 'left': '', 'right': '' },
@@ -131,13 +109,6 @@ let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
 let g:netrw_browse_split = 0
 let g:netrw_winsize = 50
 
-" " Configuração de Nnn File Manager
-" let g:nnn#set_default_mappings=0
-" let g:nnn#statusline=0
-" let g:nnn#layout={ 'window': { 'width': 0.9, 'height': 0.8, 'highlight': 'Statement' } } 
-" let g:nnn#action={'<cr>':'tab split'}
-" let g:nnn#command='nnn -o'
-
 " --- Hexokinase ---
 let g:Hexokinase_highlighters = ['backgroundfull']
 
@@ -146,6 +117,8 @@ let g:user_emmet_install_global = 0
 
 " Criando leader command
 let mapleader = ","
+
+" --- Key maps ---
 
 nnoremap <BackSpace> X
 nnoremap <space> %
@@ -189,22 +162,14 @@ nnoremap QQ :qa<cr>
 nnoremap QW :wqa<cr>
 
 " Substitute command
-" \<\> - exactly word match
-" <c-r> - acess register
-" <c-w> - get word under cursor
-" \C - case sensitive
-nnoremap S :%s/\<<c-r><c-w>\>\C//g<Left><Left>
+nnoremap <silent> S :<c-u>%s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-vnoremap <leader>S mvy`v"syiw:'<,'>s/\<<c-r>s\>\C//g<Left><Left>
+vnoremap <silent> <leader>S <esc>:<c-u>'<,'>s/\<<c-r><c-w>\>\C//g<Left><Left>
 
 " Esc more fast
 vnoremap <esc> <c-c>
 cnoremap <esc> <c-c>
-
-" <c-g>u -> new undoable edit - Experimental
-" inoremap <c-w> <c-g>u<c-w>
-" inoremap <c-u> <c-g>u<c-u>
 
 " --- Cmdline ---
 " Vim-capslock in command line
@@ -212,35 +177,36 @@ cmap <c-l> <plug>CapsLockToggle
 
 " --- Mapleader Commands ---
 " Abrir netrw File Manager
-:nnoremap <leader>ff :Vexplore<cr>
-
-" Abrir Nnn File Manager
-" nnoremap <leader>ff :NnnPicker '%:p:h'<cr>
+nnoremap <leader>f :<c-u>Vexplore<cr>
 
 " Configuração rápida do vimrc
-nnoremap <leader>rc :tabedit $MYVIMRC<cr>
+nnoremap <leader>r :<c-u>tabedit $MYVIMRC<cr>
 
 " Source vimrc - Problema com Tabline do Airline Powerline (caracteres perdiam a cor)
-nnoremap <leader>src :w<bar>:source $MYVIMRC<bar>:call UpdateVimRc()<cr>
+nnoremap <silent> <leader>s :<c-u>write<bar>:source $MYVIMRC<cr>
 
 " Salvar arquivo
 inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
 " Criando :mksession
-nnoremap <leader>mk :call SalvarSessao()<cr>
+nnoremap <leader>mk :<c-u>call SaveSession()<cr>
 
 " Colar e copiar do clipboard ("* -> selection register, middle mouse button/ "+ -> system register)
 nnoremap <leader>v "+P
 vnoremap <leader>c "+y
+" Legado
+" nnoremap <leader>v <plug>SystemYank
+" vnoremap <leader>c y:call CopiarTexto()<cr>
 
 " --- Functions ---
+
 " " Colar texto do clipboard do sistema
-" function! ColarTexto()
-" 	let @p=system("xsel -o -b")
+" function! YankText() abort
+" 	let @0 = system('xsel -o -b')
 " endfunction
 
-" function! CopiarTexto()
+" function! CopiarTexto() abort
 " 	call system('xsel -i -b', @0)
 " endfunction
 
@@ -253,7 +219,7 @@ function! EliminarHidBuf() abort
 	endfor
 endfunction
 
-function! SalvarSessao() abort
+function! SaveSession() abort
 	let l:answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
 	if l:answer == 1 
@@ -277,17 +243,8 @@ function! SalvarSessao() abort
 			echohl MoreMsg | echom "Arquivo criado com sucesso!" | echohl None
 		endif
 	else
-		echo "\n" | call SalvarSessao()
+		echo "\n" | call SaveSession()
 	endif
-endfunction
-
-function! UpdateVimRc() abort
-	" AirlineRefresh
-"	Comando para reload do arquivo (ao dar reload no vimrc, alguns arquivos perdem highlight)
-	silent e
-"	Comando :redraw redesenha a janela. Com a partícula [!], primeiramente limpa a janela e depois redesenha
-	redraw!
-   	echom "Configurações do arquivo vimrc atualizadas!"
 endfunction
 
 " Funções para compilar e mostrar prováveis erros na tela do Vim (C, Java)
@@ -383,6 +340,7 @@ endfunction
 " endfunction
 
 " --- Autocommands ---
+
 " Reset de todos os autocmd
 augroup vimrc
 	autocmd!
