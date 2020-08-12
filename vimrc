@@ -12,7 +12,7 @@ colorscheme molokai
 
 " --- Set Configurations ---
 
-" Define como o Vim busca por arquivos
+" Search recursively
 set path+=**
 
 " Indicadores - números nas linhas
@@ -37,17 +37,23 @@ set lazyredraw
 set backspace=2
 set splitbelow
 set helpheight=60
-" Usando ripgrep (copen; cfdo {cmd} | update)
-set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+
+" Using ripgrep (copen; cfdo {cmd} | update)
+if executable('rg')
+	set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+else
+	set grepprg=grep\ -R
+endif
+
 " Problems that can occur in vim session can be avoid by this configuration
 set sessionoptions-=options
 set encoding=utf-8
-set shell=/usr/bin/env\ bash
-" When a file is modified outside Vim, buffer with be updated
 set autoread
 set tabpagemax=50
 set textwidth=0
 set wildmenu
+set shell=/bin/bash
+set shellpipe=2>&1\|\ tee
 
 " Statusline
 set t_Co=256
@@ -207,7 +213,7 @@ inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
 " Criando :mksession
-nnoremap <leader>mk :call SaveSession()<cr>
+nnoremap <leader>ss :call <SID>savesession()<cr>
 
 " Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
 nnoremap <leader>v "+P
@@ -215,6 +221,17 @@ vnoremap <leader>c "+y
 " Legado
 " nnoremap <leader>v :call PutText()<cr>"0P
 " vnoremap <leader>c y:call YankText()<cr>
+
+" Make
+" make a function
+nnoremap <leader>mk :call <SID>makeit()<cr>
+
+" Quickfix window
+nnoremap <silent> <leader>co :copen<cr>
+nnoremap <silent> <leader>cc :cclose<cr>
+" :cn - next
+" :cp - previous
+" nnoremap <silent> <leader>cw :cwindow<cr>
 
 " Custom Grep
 nmap <leader>g <plug>(GrepMan)
@@ -235,6 +252,13 @@ vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
 " function! YankText() abort
 " 	call system('xsel -i -b', @0)
 " endfunction
+
+" Make command
+function! s:makeit() abort
+	silent make!
+	redraw!
+	copen
+endfunction
 
 " Add funcionality for normal and visual mode
 function! s:custom_grep(...) abort
@@ -267,7 +291,7 @@ function! s:clear_bufs() abort
 	endfor
 endfunction
 
-function! SaveSession() abort
+function! s:savesession() abort
 	let l:answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
 	if l:answer == 1 
@@ -292,28 +316,8 @@ function! SaveSession() abort
 	endif
 endfunction
 
-" Funções para compilar e mostrar prováveis erros na tela do Vim (C, Java)
-" Acrescentado o comando :silent, o prompt retorna imediatamente
-function! CompilarCodigo() abort
-	let l:file = expand("%:e")
-	if l:file ==? "java"
-		if bufexists(bufname("log_java.txt"))
-			bdelete log_java.txt
-		endif
-		silent !clear&&javac "%:t" &> /home/andre/.vim/log_java.txt
-		silent !clear&&bash /home/andre/.vim/log_java_script.sh
-		redraw!
-		split /home/andre/.vim/log_java.txt
-		resize 10
-		execute "normal! \<C-w>\<C-k>"
-	elseif l:file ==? "c"
-		!clear&&cc -Wall -g "%:t"&&rm a.out
-":		!clear&&cc -Wall -g "%:t"
-	endif
-endfunction
-
 " Função para rodar código compilado (C, Python, Java)
-function! RodarCodigo() abort
+function! s:runcode() abort
 " Buscando saber qual comando deve ser executado 
 	let l:file = expand("%:e")
 	if l:file ==? "java"
@@ -399,8 +403,7 @@ autocmd goosebumps FileType html,vim set mps+=<:>
 
 " Atalhos para arquivos específicos
 autocmd goosebumps FileType python inoremap ; :
-autocmd goosebumps FileType java,c nnoremap <leader><C-j> :call CompilarCodigo()<cr>
-autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call RodarCodigo()<cr>
+autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call <SID>runcode()<cr>
 autocmd goosebumps FileType html,vim inoremap << <><left>
 
 " Configuração para comentstring [plugin commentary.vim]
@@ -421,3 +424,9 @@ autocmd goosebumps CmdlineEnter,CmdlineChanged * redraws
 
 " Enable Emmet plugin just for html, css files
 autocmd goosebumps FileType html,css EmmetInstall
+
+" Setlocal :compiler to use with :make and quickfix commands
+autocmd goosebumps FileType python compiler python
+autocmd goosebumps FileType java compiler java
+autocmd goosebumps FileType css compiler csslint
+" autocmd goosebumps FileType javascript compiler
