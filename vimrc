@@ -4,14 +4,13 @@
 " Email: andrealexandreaguiar@gmail.com
 " Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase
 
-
 " plugin - verifica por $RUNTIMEPATH/ftplugin
 " indent - verifica por $RUNTIMEPATH/indent
 filetype indent plugin on
 syntax enable
 colorscheme molokai
 
-" --- Configurations ---
+" --- Set Configurations ---
 
 " Define como o Vim busca por arquivos
 set path+=**
@@ -32,12 +31,12 @@ set smartcase
 set hlsearch
 
 " Configurações gerais
-set splitbelow
 set autochdir
 set scrolloff=999
 set lazyredraw
 set backspace=2
-set helpheight=999
+set splitbelow
+set helpheight=60
 " Usando ripgrep (copen; cfdo {cmd} | update)
 set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 " Problems that can occur in vim session can be avoid by this configuration
@@ -47,6 +46,8 @@ set shell=/usr/bin/env\ bash
 " When a file is modified outside Vim, buffer with be updated
 set autoread
 set tabpagemax=50
+set textwidth=0
+set wildmenu
 
 " Statusline
 set t_Co=256
@@ -58,6 +59,9 @@ set noshowmode
 "  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
 "  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
 set termguicolors
+
+" --- Let Configurations ---
+
 let &t_8f = "\033[38;2;%lu;%lu;%lum"
 let &t_8b = "\033[48;2;%lu;%lu;%lum"
 
@@ -99,7 +103,8 @@ let g:Netrw_UserMaps = [
 	\['x', 'UserMapping_remove'],
 	\['.', 'UserMapping_hidden'],
 	\['q', 'UserMapping_exit'],
-	\['n', 'UserMapping_new']
+	\['n', 'UserMapping_new'],
+	\['~', 'UserMapping_home'], 
 	\]
 let g:netrw_keepdir = 0
 let g:netrw_banner = 0
@@ -120,24 +125,39 @@ let mapleader = ","
 
 " --- Key maps ---
 
-nnoremap <BackSpace> X
-nnoremap <space> %
-vnoremap <space> %
+" Using gk and gj (screen cursor up/down)
+nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+
+" Fix CTRL-arrow keys - st 
+" Mode: nvo
+map <esc>[1;5D <c-left>
+map <esc>[1;5C <c-right>
+" Mode: ic
+map! <esc>[1;5D <c-left>
+map! <esc>[1;5C <c-right>
+
+nnoremap <backspace> X
+nmap <space> <plug>(MatchitNormalForward)
+vmap <space> <plug>(MatchitVisualForward)
 
 " Esc rápido no Insert/Visual Mode
 inoremap jj <esc>
 vnoremap vv <esc>
 
+" Caso queira, utilizar :stop
+nnoremap <c-z> ,
+
 " Configuração para digitação rápida
-inoremap "" ""<Left>
-inoremap '' ''<Left>
-inoremap (( ()<Left>
-inoremap {{ {}<Left>
-inoremap [[ []<Left>
+inoremap "" ""<left>
+inoremap '' ''<left>
+inoremap (( ()<left>
+inoremap {{ {}<left>
+inoremap [[ []<left>
 
 " Configuração troca de guias
-nnoremap <TAB> gt
-nnoremap <S-TAB> gT
+nnoremap <tab> gt
+nnoremap <s-tab> gT
 
 " Yank to end of line
 nnoremap Y yg_
@@ -147,7 +167,9 @@ nnoremap ' `
 
 " Configuração para PageUp PageDown (half screen)
 nnoremap K <c-u>
+vnoremap K <c-u>
 nnoremap J <c-d>
+vnoremap J <c-d>
 
 " Final da linha/início da linha (encontra o primeiro/último caracter)
 nnoremap H ^
@@ -161,15 +183,10 @@ nnoremap QQ :qa<cr>
 " Sair de todos os arquivos, salvando todos
 nnoremap QW :wqa<cr>
 
-" Substitute command
-nnoremap <silent> S :<c-u>%s/\<<c-r><c-w>\>\C//g<Left><Left>
-
-" Substituir texto usando Visual mode para selecionar trechos a serem substituídos
-vnoremap <silent> <leader>S <esc>:<c-u>'<,'>s/\<<c-r><c-w>\>\C//g<Left><Left>
-
-" Esc more fast
-vnoremap <esc> <c-c>
-cnoremap <esc> <c-c>
+" Substitute command - make a plugin?
+nnoremap s :%s/\<<c-r><c-w>\>\C//g<left><left>
+vnoremap s <esc>"syiw:'<,'>s/\<<c-r>s\>\C//g<left><left>
+vnoremap sv "sy:%s/<c-r>s\C//g<left><left>
 
 " --- Cmdline ---
 " Vim-capslock in command line
@@ -177,41 +194,72 @@ cmap <c-l> <plug>CapsLockToggle
 
 " --- Mapleader Commands ---
 " Abrir netrw File Manager
-nnoremap <leader>f :<c-u>Vexplore<cr>
+nnoremap <leader>f :Vexplore<cr>
 
 " Configuração rápida do vimrc
-nnoremap <leader>r :<c-u>tabedit $MYVIMRC<cr>
+nnoremap <leader>r :tabedit $MYVIMRC<cr>
 
-" Source vimrc - Problema com Tabline do Airline Powerline (caracteres perdiam a cor)
-nnoremap <silent> <leader>s :<c-u>write<bar>:source $MYVIMRC<cr>
+" Source vimrc
+nnoremap <leader>so :source $MYVIMRC<cr>
 
 " Salvar arquivo
 inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
 " Criando :mksession
-nnoremap <leader>mk :<c-u>call SaveSession()<cr>
+nnoremap <leader>mk :call SaveSession()<cr>
 
-" Colar e copiar do clipboard ("* -> selection register, middle mouse button/ "+ -> system register)
+" Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
 nnoremap <leader>v "+P
 vnoremap <leader>c "+y
 " Legado
-" nnoremap <leader>v <plug>SystemYank
-" vnoremap <leader>c y:call CopiarTexto()<cr>
+" nnoremap <leader>v :call PutText()<cr>"0P
+" vnoremap <leader>c y:call YankText()<cr>
+
+" Custom Grep
+nmap <leader>g <plug>(GrepMan)
+xmap <leader>g <plug>(GrepMan)
+
+" --- Plug ---
+
+nnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep()<cr>
+vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
 
 " --- Functions ---
 
 " " Colar texto do clipboard do sistema
-" function! YankText() abort
+" function! PutText() abort
 " 	let @0 = system('xsel -o -b')
 " endfunction
 
-" function! CopiarTexto() abort
+" function! YankText() abort
 " 	call system('xsel -i -b', @0)
 " endfunction
 
-function! EliminarHidBuf() abort
-	let l:lastbid=bufnr("$")
+" Add funcionality for normal and visual mode
+function! s:custom_grep(...) abort
+	if !a:0
+		let word = expand('<cword>') 
+	else
+		if a:1 ==# 'v' || a:1 ==# 'V' || a:1 ==# '\<c-v>'
+			" save @@
+			let sav_reg = @@
+			normal! `<v`>y
+			let word = @@ 
+			let @@ = sav_reg
+		endif
+	endif
+	if empty(word)
+		return ''
+	endif
+	let cmd = 'silent grep! ' . shellescape(word)
+	silent execute cmd
+	redraw!
+	copen
+endfunction
+
+function! s:clear_bufs() abort
+	let l:lastbid = bufnr("$")
 	for id in range(1, lastbid) 
 		if bufloaded(id) == 0 && buflisted(id)
 			execute "silent bdelete " . id 
@@ -223,18 +271,17 @@ function! SaveSession() abort
 	let l:answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
 	if l:answer == 1 
-		call EliminarHidBuf()
+		call s:clear_bufs()
 		silent !rm ~/.vim/vimsessao.vim
 		silent mksession ~/.vim/vimsessao.vim
 		wall
-		redraw!
+		" redraw!
 		echom "Sessão e arquivos salvos com Sucesso!"
 "	Abrir sessão anterior
-	elseif l:answer == 2
+	else
 		if filereadable("/home/andre/.vim/vimsessao.vim")
 			silent source ~/.vim/vimsessao.vim
-			redraw!
-			" AirlineRefresh
+			" redraw!
 			echom "Sessão restaurada com Sucesso!"
 		else
 "			A mensagem de erro atua como um throw exception, informando onde o erro aconteceu e a mensagem de erro
@@ -242,8 +289,6 @@ function! SaveSession() abort
 			silent mksession ~/.vim/vimsessao.vim
 			echohl MoreMsg | echom "Arquivo criado com sucesso!" | echohl None
 		endif
-	else
-		echo "\n" | call SaveSession()
 	endif
 endfunction
 
@@ -280,7 +325,7 @@ function! RodarCodigo() abort
 	endif
 endfunction
 
-" User Functions Mappings for Netrw 
+" --- User Functions Mappings for Netrw --- 
 " Netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
 " Alterei os valores nnoremap de <cr>, -, %, D, d, R, a
 function! UserMapping_enter(islocal) abort
@@ -321,6 +366,10 @@ function! UserMapping_exit(islocal) abort
 	return "normal ZQ"
 endfunction
 
+function! UserMapping_home(islocal) abort
+	return "normal :Explore ~\<cr>"
+endfunction
+
  " --- Lightline Funcions --- 
  function! LightlineMode() abort
  	return lightline#mode() . ' ' . CapsLockStatusline()
@@ -336,47 +385,39 @@ function! LightlineFilename() abort
 	return l:filename . l:modified 
 endfunction
 
-" function! LightlineGitbranch() abort
-" endfunction
-
 " --- Autocommands ---
 
-" Reset de todos os autocmd
-augroup vimrc
+augroup goosebumps
 	autocmd!
 augroup END
 
-" Configuração para que a linha não tenha limite de fim
-autocmd vimrc FileType * set textwidth=0
+" This fucking shit again
+autocmd goosebumps FileType * set textwidth=0
 
 " Match pair para $MYVIMRC
-autocmd vimrc FileType vim set mps+=<:>
-autocmd vimrc FileType vim inoremap < <><esc>i
+autocmd goosebumps FileType html,vim set mps+=<:>
 
 " Atalhos para arquivos específicos
-autocmd vimrc FileType python inoremap ; :
-autocmd vimrc FileType java,c nnoremap <leader><C-j> :call CompilarCodigo()<cr>
-autocmd vimrc FileType java,python,c nnoremap <leader><C-k> :call RodarCodigo()<cr>
-autocmd vimrc FileType html inoremap < <><esc>i
+autocmd goosebumps FileType python inoremap ; :
+autocmd goosebumps FileType java,c nnoremap <leader><C-j> :call CompilarCodigo()<cr>
+autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call RodarCodigo()<cr>
+autocmd goosebumps FileType html,vim inoremap << <><left>
 
 " Configuração para comentstring [plugin commentary.vim]
-autocmd vimrc FileType sh,bash setlocal commentstring=#\ %s
-autocmd vimrc FileType c setlocal commentstring=/*\ %s\ */
-autocmd vimrc FileType java setlocal commentstring=//\ %s
-autocmd vimrc FileType vim setlocal commentstring=\"\ %s
+autocmd goosebumps FileType sh,bash setlocal commentstring=#\ %s
+autocmd goosebumps FileType c setlocal commentstring=/*\ %s\ */
+autocmd goosebumps FileType java setlocal commentstring=//\ %s
+autocmd goosebumps FileType vim setlocal commentstring=\"\ %s
 
 " Compilar Suckless config - utilizar escape sequence para pipeline nos comandos passados pelo VIM
-autocmd vimrc BufWritePost config.h :!sudo make clean install
-
-" Templates de arquivos
-autocmd vimrc FileType java nnoremap <leader>java :call TemplateJava()<cr>
+autocmd goosebumps BufWritePost config.h :!sudo make clean install
 
 " Ao entrar no modo Insert, trocar o background da linha
-autocmd vimrc InsertEnter * set cursorline
-autocmd vimrc InsertLeave * set nocursorline
+autocmd goosebumps InsertEnter * set cursorline
+autocmd goosebumps InsertLeave * set nocursorline
 
 " Refresh Command mode statusline
-autocmd vimrc CmdlineEnter,CmdlineChanged * redraws
+autocmd goosebumps CmdlineEnter,CmdlineChanged * redraws
 
 " Enable Emmet plugin just for html, css files
-autocmd vimrc FileType html,css EmmetInstall
+autocmd goosebumps FileType html,css EmmetInstall
