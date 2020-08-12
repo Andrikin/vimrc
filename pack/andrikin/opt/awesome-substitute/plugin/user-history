@@ -1,0 +1,19 @@
+Substituir palavras deve ter live preview!
+Normal mode:
+	-> usuário utilizar s para substituir palavra que está sob cursor
+		-> utilizar gg, G, % para substituir o motion desses comandos
+			-> sgg: substituir em direção ao início do arquivo
+			-> sG: substituir em direção ao fim do arquivo
+			-> s%: substituir em todo o arquivo - ss
+				-> siw: substituir word em todo o arquivo
+				-> siW: sunstituir WORD em todo o arquivo
+Visual mode: 
+	-> caso usuário esteja em visual mode, a palavra será trocada respeitando os limites do visual mode
+		-> utilizar gg, G, % para substituir o motion desses comandos
+			-> sgg: substituir em direção ao início do visual mode
+			-> sG: substituir em direção ao fim do visual mode
+			-> s%: substituir em todo o visual mode - ss
+				-> siw: substituir word em todo o visual mode
+				-> siW: sunstituir WORD em todo o visual mode
+	-> se visual mode selecionado for somente uma string sem [space], substituir palavra em todo arquivo
+
