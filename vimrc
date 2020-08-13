@@ -2,10 +2,10 @@
 "
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
-" Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase
+" Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
 
-" plugin - verifica por $RUNTIMEPATH/ftplugin
-" indent - verifica por $RUNTIMEPATH/indent
+" plugin -> verify $RUNTIMEPATH/ftplugin for files
+" indent -> verify $RUNTIMEPATH/indent for files
 filetype indent plugin on
 syntax enable
 colorscheme molokai
@@ -31,7 +31,7 @@ set smartcase
 set hlsearch
 
 " Configurações gerais
-set autochdir
+set noautochdir
 set scrolloff=999
 set lazyredraw
 set backspace=2
@@ -101,30 +101,37 @@ let g:lightline = {
 			\	},
 			\ }
 
-" --- Netrw File Manager ---
-let g:Netrw_UserMaps = [
-	\['l', 'UserMapping_enter'],
-	\['h', 'UserMapping_return'],
-	\['r', 'UserMapping_rename'],
-	\['x', 'UserMapping_remove'],
-	\['.', 'UserMapping_hidden'],
-	\['q', 'UserMapping_exit'],
-	\['n', 'UserMapping_new'],
-	\['~', 'UserMapping_home'], 
-	\]
-let g:netrw_keepdir = 0
-let g:netrw_banner = 0
-let g:netrw_liststyle = 0
-let g:netrw_list_hide= '^\..*'
-let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
-let g:netrw_browse_split = 0
-let g:netrw_winsize = 50
+" Legado
+" " --- Netrw File Manager ---
+" let g:Netrw_UserMaps = [
+" 	\['l', 'UserMapping_enter'],
+" 	\['h', 'UserMapping_return'],
+" 	\['r', 'UserMapping_rename'],
+" 	\['x', 'UserMapping_remove'],
+" 	\['.', 'UserMapping_hidden'],
+" 	\['q', 'UserMapping_exit'],
+" 	\['n', 'UserMapping_new'],
+" 	\['~', 'UserMapping_home'], 
+" 	\]
+" let g:netrw_keepdir = 0
+" let g:netrw_banner = 0
+" let g:netrw_liststyle = 0
+" let g:netrw_list_hide= '^\..*'
+" let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
+" let g:netrw_browse_split = 0
+" let g:netrw_winsize = 50
 
 " --- Hexokinase ---
 let g:Hexokinase_highlighters = ['backgroundfull']
 
 " --- Emmet ---
 let g:user_emmet_install_global = 0
+
+" Dirvish filemanager?
+let g:loaded_netrwPlugin = 1
+command! -nargs=? -complete=dir Explore Dirvish <args>
+command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
+command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
 
 " Criando leader command
 let mapleader = ","
@@ -144,6 +151,8 @@ map! <esc>[1;5D <c-left>
 map! <esc>[1;5C <c-right>
 
 nnoremap <backspace> X
+
+" matchit plugin
 nmap <space> <plug>(MatchitNormalForward)
 vmap <space> <plug>(MatchitVisualForward)
 
@@ -189,7 +198,8 @@ nnoremap QQ :qa<cr>
 " Sair de todos os arquivos, salvando todos
 nnoremap QW :wqa<cr>
 
-" Substitute command - make a plugin?
+" Substitute command
+" TODO: Make a plugin?
 nnoremap s :%s/\<<c-r><c-w>\>\C//g<left><left>
 vnoremap s <esc>"syiw:'<,'>s/\<<c-r>s\>\C//g<left><left>
 vnoremap sv "sy:%s/<c-r>s\C//g<left><left>
@@ -199,8 +209,6 @@ vnoremap sv "sy:%s/<c-r>s\C//g<left><left>
 cmap <c-l> <plug>CapsLockToggle
 
 " --- Mapleader Commands ---
-" Abrir netrw File Manager
-nnoremap <leader>f :Vexplore<cr>
 
 " Configuração rápida do vimrc
 nnoremap <leader>r :tabedit $MYVIMRC<cr>
@@ -212,7 +220,7 @@ inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
 " :mksession
-nnoremap <leader>ss :call <SID>savesession()<cr>
+nnoremap <leader>ss :call <SID>save_session()<cr>
 
 " Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
 nnoremap <leader>v "+P
@@ -224,17 +232,16 @@ vnoremap <leader>c "+y
 nnoremap <leader>k :silent make!<cr>
 
 " Quickfix window
-nnoremap <silent> <leader>co :copen<cr>
 nnoremap <silent> <leader>cc :cclose<cr>
-" :cc      see the current error
-" :cn      next error
-" :cp      previous error
-" :clist   list all errors
+" nnoremap <silent> <leader>co :copen<cr>
 " nnoremap <silent> <leader>cw :cwindow<cr>
 
 " Custom Grep
 nmap <leader>g <plug>(GrepMan)
 xmap <leader>g <plug>(GrepMan)
+
+" Undotree plugin
+nnoremap <leader>u :UndotreeShow<cr>
 
 " --- Plug ---
 
@@ -243,11 +250,12 @@ vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
 
 " --- Functions ---
 
+" Legado
 " " Colar texto do clipboard do sistema
 " function! PutText() abort
 " 	let @0 = system('xsel -o -b')
 " endfunction
-
+"
 " function! YankText() abort
 " 	call system('xsel -i -b', @0)
 " endfunction
@@ -275,7 +283,7 @@ function! s:custom_grep(...) abort
 endfunction
 
 function! s:clear_bufs() abort
-	let l:lastbid = bufnr("$")
+	let lastbid = bufnr("$")
 	for id in range(1, lastbid) 
 		if bufloaded(id) == 0 && buflisted(id)
 			execute "silent bdelete " . id 
@@ -283,10 +291,10 @@ function! s:clear_bufs() abort
 	endfor
 endfunction
 
-function! s:savesession() abort
-	let l:answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
+function! s:save_session() abort
+	let answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 "	Salvar sessão
-	if l:answer == 1 
+	if answer == 1 
 		call s:clear_bufs()
 		silent !rm ~/.vim/vimsessao.vim
 		silent mksession ~/.vim/vimsessao.vim
@@ -308,15 +316,13 @@ function! s:savesession() abort
 	endif
 endfunction
 
-" Função para rodar código compilado (C, Python, Java)
+" Função para rodar código compilado (C, Java)
 function! s:runcode() abort
 " Buscando saber qual comando deve ser executado 
-	let l:file = expand("%:e")
-	if l:file ==? "java"
+	let file = expand("%:e")
+	if file ==? "java"
 		!clear&&java "%:t:r"
-	elseif l:file ==? "py"
-		!clear&&python3 "%:t"
-	elseif l:file ==? "c"
+	elseif file ==? "c"
 		!clear&&tcc -run "%:t"
 	endif
 endfunction
@@ -334,10 +340,10 @@ endfunction
 
 " Make user input 'f' or 'd'
 function! UserMapping_new(islocal) abort
-	let l:answer = confirm("Create new file or dir?", "file\ndir", 1)
-	if l:answer == 1
+	let answer = confirm("Create new file or dir?", "file\ndir", 1)
+	if answer == 1
 		return "normal \<plug>NetrwOpenFile"
-	elseif l:answer == 2
+	elseif answer == 2
 		return "normal :call \<SID>NetrwMakeDir('')\<cr>"
 	else
 		return "refresh"
@@ -345,13 +351,13 @@ function! UserMapping_new(islocal) abort
 endfunction
 
 function! UserMapping_rename(islocal) abort
-	let l:curdir = getcwd(0, 0)
-	return "normal :call \<SID>NetrwLocalRename('" . l:curdir . "')\<cr>"
+	let curdir = getcwd(0, 0)
+	return "normal :call \<SID>NetrwLocalRename('" . curdir . "')\<cr>"
 endfunction
 
 function! UserMapping_remove(islocal) abort
-	let l:curdir = getcwd(0, 0)
-	return "normal :call \<SID>NetrwLocalRm('" . l:curdir . "')\<cr>"
+	let curdir = getcwd(0, 0)
+	return "normal :call \<SID>NetrwLocalRm('" . curdir . "')\<cr>"
 endfunction
 
 function! UserMapping_hidden(islocal) abort
@@ -376,9 +382,9 @@ function! LightlineReadonly() abort
 endfunction
 
 function! LightlineFilename() abort
-	let l:filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
-	let l:modified = &modified ? ' +' : ''
-	return l:filename . l:modified 
+	let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+	let modified = &modified ? ' +' : ''
+	return filename . modified 
 endfunction
 
 " --- Autocommands ---
