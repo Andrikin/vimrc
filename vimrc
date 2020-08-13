@@ -101,37 +101,21 @@ let g:lightline = {
 			\	},
 			\ }
 
-" Legado
-" " --- Netrw File Manager ---
-" let g:Netrw_UserMaps = [
-" 	\['l', 'UserMapping_enter'],
-" 	\['h', 'UserMapping_return'],
-" 	\['r', 'UserMapping_rename'],
-" 	\['x', 'UserMapping_remove'],
-" 	\['.', 'UserMapping_hidden'],
-" 	\['q', 'UserMapping_exit'],
-" 	\['n', 'UserMapping_new'],
-" 	\['~', 'UserMapping_home'], 
-" 	\]
-" let g:netrw_keepdir = 0
-" let g:netrw_banner = 0
-" let g:netrw_liststyle = 0
-" let g:netrw_list_hide= '^\..*'
-" let g:netrw_bufsettings='noma nomod rnu nu nowrap ro nobl'
-" let g:netrw_browse_split = 0
-" let g:netrw_winsize = 50
-
 " --- Hexokinase ---
 let g:Hexokinase_highlighters = ['backgroundfull']
 
 " --- Emmet ---
 let g:user_emmet_install_global = 0
 
-" Dirvish filemanager?
+" Dirvish 'path navigator'
 let g:loaded_netrwPlugin = 1
 command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
 command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
+
+" Undotree
+let g:undotree_ShortIndicators = 1
+let g:undotree_SetFocusWhenToggle = 1
 
 " Criando leader command
 let mapleader = ","
@@ -225,15 +209,12 @@ nnoremap <leader>ss :call <SID>save_session()<cr>
 " Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
 nnoremap <leader>v "+P
 vnoremap <leader>c "+y
-" Legado
-" nnoremap <leader>v :call PutText()<cr>"0P
-" vnoremap <leader>c y:call YankText()<cr>
 
 nnoremap <leader>k :silent make!<cr>
 
 " Quickfix window
 nnoremap <silent> <leader>cc :cclose<cr>
-" nnoremap <silent> <leader>co :copen<cr>
+nnoremap <silent> <leader>co :copen<cr>
 " nnoremap <silent> <leader>cw :cwindow<cr>
 
 " Custom Grep
@@ -241,7 +222,7 @@ nmap <leader>g <plug>(GrepMan)
 xmap <leader>g <plug>(GrepMan)
 
 " Undotree plugin
-nnoremap <leader>u :UndotreeShow<cr>
+nnoremap <silent> <leader>u :UndotreeToggle<cr>
 
 " --- Plug ---
 
@@ -249,16 +230,6 @@ nnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep()<cr>
 vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
 
 " --- Functions ---
-
-" Legado
-" " Colar texto do clipboard do sistema
-" function! PutText() abort
-" 	let @0 = system('xsel -o -b')
-" endfunction
-"
-" function! YankText() abort
-" 	call system('xsel -i -b', @0)
-" endfunction
 
 " Add funcionality for normal and visual mode
 function! s:custom_grep(...) abort
@@ -317,59 +288,14 @@ function! s:save_session() abort
 endfunction
 
 " Função para rodar código compilado (C, Java)
-function! s:runcode() abort
+function! s:run_code() abort
 " Buscando saber qual comando deve ser executado 
 	let file = expand("%:e")
 	if file ==? "java"
-		!clear&&java "%:t:r"
+		echo system('java ' . expand('%:t:r'))
 	elseif file ==? "c"
-		!clear&&tcc -run "%:t"
+		echo system('tcc -run ' . expand('%:t'))
 	endif
-endfunction
-
-" --- User Functions Mappings for Netrw --- 
-" Netrw.vim em /usr/share/vim/vim80/autoload/netrw.vim.
-" Alterei os valores nnoremap de <cr>, -, %, D, d, R, a
-function! UserMapping_enter(islocal) abort
-	return "normal \<plug>NetrwLocalBrowseCheck"
-endfunction
-
-function! UserMapping_return(islocal) abort
-	return "normal \<plug>NetrwBrowseUpDir"
-endfunction
-
-" Make user input 'f' or 'd'
-function! UserMapping_new(islocal) abort
-	let answer = confirm("Create new file or dir?", "file\ndir", 1)
-	if answer == 1
-		return "normal \<plug>NetrwOpenFile"
-	elseif answer == 2
-		return "normal :call \<SID>NetrwMakeDir('')\<cr>"
-	else
-		return "refresh"
-	endif
-endfunction
-
-function! UserMapping_rename(islocal) abort
-	let curdir = getcwd(0, 0)
-	return "normal :call \<SID>NetrwLocalRename('" . curdir . "')\<cr>"
-endfunction
-
-function! UserMapping_remove(islocal) abort
-	let curdir = getcwd(0, 0)
-	return "normal :call \<SID>NetrwLocalRm('" . curdir . "')\<cr>"
-endfunction
-
-function! UserMapping_hidden(islocal) abort
-	return "normal \<plug>NetrwHide_a"
-endfunction
-
-function! UserMapping_exit(islocal) abort
-	return "normal ZQ"
-endfunction
-
-function! UserMapping_home(islocal) abort
-	return "normal :Explore ~\<cr>"
 endfunction
 
  " --- Lightline Funcions --- 
@@ -401,7 +327,7 @@ autocmd goosebumps FileType html,vim set mps+=<:>
 
 " Atalhos para arquivos específicos
 autocmd goosebumps FileType python inoremap ; :
-autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call <SID>runcode()<cr>
+autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call <SID>run_code()<cr>
 autocmd goosebumps FileType html,vim inoremap << <><left>
 
 " Configuração para comentstring [plugin commentary.vim]
@@ -429,6 +355,6 @@ autocmd goosebumps FileType java compiler java
 autocmd goosebumps FileType css compiler csslint
 " autocmd goosebumps FileType javascript compiler
 
-" Open quickfix window after :make
+" Open quickfix window after :make (:cwindow will open if there is an error message)
 autocmd goosebumps QuickFixCmdPost [^l]* ++nested redraw! | cwindow
 autocmd goosebumps QuickFixCmdPost l* ++nested redraw! | cwindow
