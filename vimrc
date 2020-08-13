@@ -205,14 +205,13 @@ nnoremap <leader>f :Vexplore<cr>
 " Configuração rápida do vimrc
 nnoremap <leader>r :tabedit $MYVIMRC<cr>
 
-" Source vimrc
 nnoremap <leader>so :source $MYVIMRC<cr>
 
-" Salvar arquivo
+" Save files
 inoremap <leader>w <esc>:w<cr>
 nnoremap <leader>w :w<cr>
 
-" Criando :mksession
+" :mksession
 nnoremap <leader>ss :call <SID>savesession()<cr>
 
 " Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
@@ -222,15 +221,15 @@ vnoremap <leader>c "+y
 " nnoremap <leader>v :call PutText()<cr>"0P
 " vnoremap <leader>c y:call YankText()<cr>
 
-" Make
-" make a function
-nnoremap <leader>mk :call <SID>makeit()<cr>
+nnoremap <leader>k :silent make!<cr>
 
 " Quickfix window
 nnoremap <silent> <leader>co :copen<cr>
 nnoremap <silent> <leader>cc :cclose<cr>
-" :cn - next
-" :cp - previous
+" :cc      see the current error
+" :cn      next error
+" :cp      previous error
+" :clist   list all errors
 " nnoremap <silent> <leader>cw :cwindow<cr>
 
 " Custom Grep
@@ -252,13 +251,6 @@ vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
 " function! YankText() abort
 " 	call system('xsel -i -b', @0)
 " endfunction
-
-" Make command
-function! s:makeit() abort
-	silent make!
-	redraw!
-	copen
-endfunction
 
 " Add funcionality for normal and visual mode
 function! s:custom_grep(...) abort
@@ -430,3 +422,7 @@ autocmd goosebumps FileType python compiler python
 autocmd goosebumps FileType java compiler java
 autocmd goosebumps FileType css compiler csslint
 " autocmd goosebumps FileType javascript compiler
+
+" Open quickfix window after :make
+autocmd goosebumps QuickFixCmdPost [^l]* ++nested redraw! | cwindow
+autocmd goosebumps QuickFixCmdPost l* ++nested redraw! | cwindow
