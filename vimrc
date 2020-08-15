@@ -1,5 +1,4 @@
 " $MYVIMRC
-"
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 " Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
@@ -50,13 +49,13 @@ set sessionoptions-=options
 set encoding=utf-8
 set autoread
 set tabpagemax=50
-set textwidth=0
+" set textwidth=0
 set wildmenu
 set shell=/bin/bash
 set shellpipe=2>&1\|\ tee
 
 " Statusline
-set t_Co=256
+" set t_Co=256
 set laststatus=2 
 set showtabline=2 
 set noshowmode 
@@ -112,6 +111,7 @@ let g:loaded_netrwPlugin = 1
 command! -nargs=? -complete=dir Explore Dirvish <args>
 command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
 command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
+command! -nargs=? -complete=dir Texplore tabedit | silent Dirvish <args>
 
 " Undotree
 let g:undotree_ShortIndicators = 1
@@ -122,23 +122,26 @@ let mapleader = ","
 
 " --- Key maps ---
 
+" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" so that you can undo CTRL-U after inserting a line break.
+" Revert with ":iunmap <C-U>". -> from defaults.vim
+inoremap <c-u> <c-g>u<c-u>
+
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
 nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
 
 " Fix CTRL-arrow keys - st 
-" Mode: nvo
-map <esc>[1;5D <c-left>
-map <esc>[1;5C <c-right>
-" Mode: ic
-map! <esc>[1;5D <c-left>
-map! <esc>[1;5C <c-right>
+imap <esc>[1;5D <c-left>
+imap <esc>[1;5C <c-right>
+cmap <esc>[1;5D <c-left>
+cmap <esc>[1;5C <c-right>
 
 nnoremap <backspace> X
 
 " matchit plugin
 nmap <space> <plug>(MatchitNormalForward)
-vmap <space> <plug>(MatchitVisualForward)
+xmap <space> <plug>(MatchitVisualForward)
 
 " Esc rápido no Insert/Visual Mode
 inoremap jj <esc>
@@ -182,76 +185,83 @@ nnoremap QQ :qa<cr>
 " Sair de todos os arquivos, salvando todos
 nnoremap QW :wqa<cr>
 
-" Substitute command
-" TODO: Make a plugin?
-nnoremap s :%s/\<<c-r><c-w>\>\C//g<left><left>
-vnoremap s <esc>"syiw:'<,'>s/\<<c-r>s\>\C//g<left><left>
-vnoremap sv "sy:%s/<c-r>s\C//g<left><left>
-
 " --- Cmdline ---
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
 
 " --- Mapleader Commands ---
 
-" Configuração rápida do vimrc
-nnoremap <leader>r :tabedit $MYVIMRC<cr>
-
-nnoremap <leader>so :source $MYVIMRC<cr>
-
-" Save files
-inoremap <leader>w <esc>:w<cr>
-nnoremap <leader>w :w<cr>
+" $MYVIMRC
+nnoremap <silent> <leader>r :tabedit $MYVIMRC<cr>
+nnoremap <silent> <leader>so :source $MYVIMRC<cr>
 
 " :mksession
-nnoremap <leader>ss :call <SID>save_session()<cr>
+nnoremap <silent> <leader>ss :call <SID>save_session()<cr>
 
 " Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
 nnoremap <leader>v "+P
 vnoremap <leader>c "+y
 
-nnoremap <leader>k :silent make!<cr>
-
 " Quickfix window
+nnoremap <silent> <leader>k :Make %:S<cr>
 nnoremap <silent> <leader>cc :cclose<cr>
 nnoremap <silent> <leader>co :copen<cr>
-" nnoremap <silent> <leader>cw :cwindow<cr>
-
-" Custom Grep
-nmap <leader>g <plug>(GrepMan)
-xmap <leader>g <plug>(GrepMan)
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
 
-" --- Plug ---
+" Quicksearch
+" nnoremap <leader>/ :g/
+" cnoremap <expr> <cr> <SID>cmd_enter()
 
-nnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep()<cr>
-vnoremap <silent> <plug>(GrepMan) :<c-u>call <SID>custom_grep(visualmode())<cr>
+" --- Command's ---
+
+" grep and make without I/O terminal screen
+command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr <SID>custom_grep(<f-args>)
+command! -nargs=+ -complete=file_in_path -bar LGrep lgetexpr <SID>custom_grep(<f-args>)
+command! -nargs=+ -complete=file_in_path -bar Make call <SID>custom_make('c', <f-args>) 
+command! -nargs=+ -complete=file_in_path -bar LMake call <SID>custom_make('l', <f-args>)
+
+" --- Abbreviations ---
+
+cnoreabbrev <expr> grep  (getcmdtype() ==# ':' && getcmdline() ==# 'grep')  ? 'Grep'  : 'grep'
+cnoreabbrev <expr> lgrep (getcmdtype() ==# ':' && getcmdline() ==# 'lgrep') ? 'LGrep' : 'lgrep'
+cnoreabbrev <expr> make  (getcmdtype() ==# ':' && getcmdline() ==# 'make')  ? 'Make'  : 'make'
+cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'LMake' : 'lmake'
+
+" --- Plug's ---
 
 " --- Functions ---
 
-" Add funcionality for normal and visual mode
 function! s:custom_grep(...) abort
-	if !a:0
-		let word = expand('<cword>') 
+	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
+endfunction
+
+" [lc]getexpr pass the result of system() through [global] 'errorformat'
+" :make recive more args
+" TODO: Move to runtime
+function! s:custom_make(mode, ...) abort
+	let sav_errorformat = &l:errorformat
+	let &g:errorformat = &l:errorformat
+	if a:mode ==# 'c'
+		cgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
+	elseif a:mode ==# 'l'
+		lgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
 	else
-		if a:1 ==# 'v' || a:1 ==# 'V' || a:1 ==# '\<c-v>'
-			" save @@
-			let sav_reg = @@
-			normal! `<v`>y
-			let word = @@ 
-			let @@ = sav_reg
-		endif
-	endif
-	if empty(word)
 		return ''
 	endif
-	let cmd = 'silent grep! ' . shellescape(word)
-	silent execute cmd
-	redraw!
-	copen
+	setglobal errorformat&
+	let &l:errorformat = sav_errorformat
 endfunction
+
+" function! s:cmd_enter() abort
+" 	let cmd_line = getcmdline()
+" 	if cmd_line =~ '^\l\/\w*$'
+" 		return "\<cr>:p\<left>"
+" 	else
+" 		return "\<cr>"
+" 	endif
+" endfunction
 
 function! s:clear_bufs() abort
 	let lastbid = bufnr("$")
@@ -264,7 +274,6 @@ endfunction
 
 function! s:save_session() abort
 	let answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
-"	Salvar sessão
 	if answer == 1 
 		call s:clear_bufs()
 		silent !rm ~/.vim/vimsessao.vim
@@ -272,14 +281,12 @@ function! s:save_session() abort
 		wall
 		" redraw!
 		echom "Sessão e arquivos salvos com Sucesso!"
-"	Abrir sessão anterior
 	else
 		if filereadable("/home/andre/.vim/vimsessao.vim")
 			silent source ~/.vim/vimsessao.vim
 			" redraw!
 			echom "Sessão restaurada com Sucesso!"
 		else
-"			A mensagem de erro atua como um throw exception, informando onde o erro aconteceu e a mensagem de erro
 			echoerr "Arquivo ~/.vim/vimsessao.vim não existe! Criando arquivo vimsessao.vim"
 			silent mksession ~/.vim/vimsessao.vim
 			echohl MoreMsg | echom "Arquivo criado com sucesso!" | echohl None
@@ -287,14 +294,13 @@ function! s:save_session() abort
 	endif
 endfunction
 
-" Função para rodar código compilado (C, Java)
+" Run C, Java code
 function! s:run_code() abort
-" Buscando saber qual comando deve ser executado 
 	let file = expand("%:e")
 	if file ==? "java"
-		echo system('java ' . expand('%:t:r'))
+		lgetexpr system('java ' . expand('%:t:r'))
 	elseif file ==? "c"
-		echo system('tcc -run ' . expand('%:t'))
+		lgetexpr system('tcc -run ' . expand('%:t'))
 	endif
 endfunction
 
@@ -314,21 +320,22 @@ function! LightlineFilename() abort
 endfunction
 
 " --- Autocommands ---
+"  for map's use <buffer>, for set's use setlocal
 
 augroup goosebumps
 	autocmd!
 augroup END
 
 " This fucking shit again
-autocmd goosebumps FileType * set textwidth=0
+autocmd goosebumps FileType * setlocal textwidth=0
 
 " Match pair para $MYVIMRC
-autocmd goosebumps FileType html,vim set mps+=<:>
+autocmd goosebumps FileType html,vim setlocal mps+=<:>
 
 " Atalhos para arquivos específicos
 autocmd goosebumps FileType python inoremap ; :
-autocmd goosebumps FileType java,python,c nnoremap <leader><C-k> :call <SID>run_code()<cr>
-autocmd goosebumps FileType html,vim inoremap << <><left>
+autocmd goosebumps FileType java,c nnoremap <buffer> <leader><C-k> :call <SID>run_code()<cr>
+autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
 
 " Configuração para comentstring [plugin commentary.vim]
 autocmd goosebumps FileType sh,bash setlocal commentstring=#\ %s
@@ -340,8 +347,8 @@ autocmd goosebumps FileType vim setlocal commentstring=\"\ %s
 autocmd goosebumps BufWritePost config.h :!sudo make clean install
 
 " Ao entrar no modo Insert, trocar o background da linha
-autocmd goosebumps InsertEnter * set cursorline
-autocmd goosebumps InsertLeave * set nocursorline
+autocmd goosebumps InsertEnter * setlocal cursorline
+autocmd goosebumps InsertLeave * setlocal nocursorline
 
 " Refresh Command mode statusline
 autocmd goosebumps CmdlineEnter,CmdlineChanged * redraws
@@ -356,5 +363,5 @@ autocmd goosebumps FileType css compiler csslint
 " autocmd goosebumps FileType javascript compiler
 
 " Open quickfix window after :make (:cwindow will open if there is an error message)
-autocmd goosebumps QuickFixCmdPost [^l]* ++nested redraw! | cwindow
-autocmd goosebumps QuickFixCmdPost l* ++nested redraw! | cwindow
+autocmd goosebumps QuickFixCmdPost [^l]* ++nested cwindow
+autocmd goosebumps QuickFixCmdPost l* ++nested lwindow
