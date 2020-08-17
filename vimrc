@@ -233,18 +233,7 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 
 " --- Functions ---
 
-" function! s:is_qf_on() abort
-" 	let is_on = 0
-" 	let nr_qf = 0
-" 	for window in range(1, winnr('$'))
-" 		if getwinvar(window, '&filetype') == 'qf'
-" 			let [is_on, nr_qf] = [1, window] 
-" 			break
-" 		endif
-" 	endfor
-" 	return [is_on, nr_qf]
-" endfunction
-
+" TODO: It don't look for situations when there is two quickfix windows open, but I think that it handles
 function! s:is_qf_on() abort
 	for window in gettabinfo('%')[0].windows
 		if getwininfo(window)[0].quickfix
