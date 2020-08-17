@@ -1,7 +1,7 @@
 " $MYVIMRC
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
-" Dependences: ripgrep, traces.vim, [surround, comment, capslock] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
+" Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
 
 " plugin -> verify $RUNTIMEPATH/ftplugin for files
 " indent -> verify $RUNTIMEPATH/indent for files
@@ -49,13 +49,12 @@ set sessionoptions-=options
 set encoding=utf-8
 set autoread
 set tabpagemax=50
-" set textwidth=0
+set textwidth=0
 set wildmenu
 set shell=/bin/bash
 set shellpipe=2>&1\|\ tee
 
 " Statusline
-" set t_Co=256
 set laststatus=2 
 set showtabline=2 
 set noshowmode 
@@ -71,7 +70,6 @@ let &t_8f = "\033[38;2;%lu;%lu;%lum"
 let &t_8b = "\033[48;2;%lu;%lu;%lum"
 
 " --- lightline ---
-" Removed options
 let g:lightline = {
 			\ 'colorscheme': 'molokai',
 			\ 'separator': { 'left': '', 'right': '' },
@@ -111,19 +109,12 @@ let g:traces_num_range_preview = 1
 
 " --- UndoTree ---
 let g:undotree_WindowLayout = 2
-
-" Dirvish 'path navigator'
-let g:loaded_netrwPlugin = 1
-command! -nargs=? -complete=dir Explore Dirvish <args>
-command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
-command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
-command! -nargs=? -complete=dir Texplore tabedit | silent Dirvish <args>
-
-" Undotree
 let g:undotree_ShortIndicators = 1
 let g:undotree_SetFocusWhenToggle = 1
 
-" Criando leader command
+" --- Dirvish ---
+let g:loaded_netrwPlugin = 1
+
 let mapleader = ","
 
 " --- Key maps ---
@@ -187,7 +178,6 @@ nnoremap QQ :qa<cr>
 " Quit and save all windows
 nnoremap QW :wqa<cr>
 
-" --- Cmdline ---
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
 
@@ -201,12 +191,14 @@ nnoremap <silent> <leader>so :source $MYVIMRC<cr>
 nnoremap <silent> <leader>ss :call <SID>save_session()<cr>
 
 " Copy and paste from clipboard (* -> selection register/+ -> primary register)
-nnoremap <leader>v "+P
-vnoremap <leader>c "+y
+nnoremap <leader>p "+P
+vnoremap <leader>y "+y
 
 " Quickfix window
 nnoremap <silent> <leader>k :Make %:S<cr>
-nnoremap <silent> <expr> <leader>qq <SID>is_loc_window() == 1 ? ":lclose\<cr>" : ":cclose\<cr>"
+nnoremap <silent> <expr> <leader>q <SID>is_qf_loc() == 1 ? ":lclose\<cr>" : ":cclose\<cr>"
+nnoremap <silent> <expr> <leader>c <SID>toggle_qf() == 0 ? ":copen\<cr>" : ":cclose\<cr>"
+nnoremap <silent> <expr> <leader>l <SID>toggle_qf() == 0 ? ":lopen\<cr>" : ":lclose\<cr>"
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
@@ -225,6 +217,11 @@ command! -nargs=+ -complete=file_in_path -bar LMake call <SID>custom_make('l', <
 " command! -nargs=1 -bang Vimgrep execute "vimgrep" . <bang> . " /" . <q-args> . "/ %"
 command! -nargs=1 -bar Gbar lgetexpr <SID>g_bar_search(<f-args>)
 
+" Dirvish modes
+command! -nargs=? -complete=dir Sirvish belowright split | silent Dirvish <args>
+command! -nargs=? -complete=dir Virvish leftabove vsplit | silent Dirvish <args>
+command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
+
 " --- Abbreviations ---
 
 cnoreabbrev <expr> grep  (getcmdtype() ==# ':' && getcmdline() ==# 'grep')  ? 'Grep'  : 'grep'
@@ -236,8 +233,30 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 
 " --- Functions ---
 
-function! s:is_loc_window() abort
-	return !empty(getloclist(0))
+function! s:is_qf_loc() abort
+	let qf_win = s:is_qf_on()
+	" return !empty(getloclist(qf_win[1]))
+	let is_loc = 0
+	if qf_win[0]
+		let is_loc = !empty(getloclist(qf_win[1]))
+	endif
+	return is_loc
+endfunction
+
+function! s:is_qf_on() abort
+	let is_on = 0
+	let nr_qf = 0
+	for window in range(1, winnr('$'))
+		if getwinvar(window, '&filetype') == 'qf'
+			let [is_on, nr_qf] = [1, window] 
+			break
+		endif
+	endfor
+	return [is_on, nr_qf]
+endfunction
+
+function! s:toggle_qf() abort
+	return s:is_qf_on()[0]
 endfunction
 
 function! s:g_bar_search(...) abort
@@ -275,14 +294,14 @@ endfunction
 " endfunction
 
 function! s:clear_bufs() abort
-	let lastbid = bufnr("$")
-	for id in range(1, lastbid) 
+	for id in range(1, bufnr('$')) 
 		if bufloaded(id) == 0 && buflisted(id)
 			execute "silent bdelete " . id 
 		endif
 	endfor
 endfunction
 
+" TODO: Make it better
 function! s:save_session() abort
 	let answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
 	if answer == 1 
@@ -306,6 +325,7 @@ function! s:save_session() abort
 endfunction
 
 " Run C, Java code
+" TODO: Make it better
 function! s:run_code() abort
 	let file = expand("%:e")
 	if file ==? "java"
@@ -337,16 +357,16 @@ augroup goosebumps
 	autocmd!
 augroup END
 
+" Atalhos para arquivos específicos
+autocmd goosebumps FileType python inoremap <buffer> ; :
+autocmd goosebumps FileType java,c nnoremap <buffer> <leader><C-k> :call <SID>run_code()<cr>
+autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
+
 " This fucking shit again
-autocmd goosebumps FileType * setlocal textwidth=0
+" autocmd goosebumps FileType * setlocaltextwidth=0
 
 " Match pair para $MYVIMRC
 autocmd goosebumps FileType html,vim setlocal mps+=<:>
-
-" Atalhos para arquivos específicos
-autocmd goosebumps FileType python inoremap ; :
-autocmd goosebumps FileType java,c nnoremap <buffer> <leader><C-k> :call <SID>run_code()<cr>
-autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
 
 " Configuração para comentstring [plugin commentary.vim]
 autocmd goosebumps FileType sh,bash setlocal commentstring=#\ %s
