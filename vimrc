@@ -173,10 +173,10 @@ vnoremap H ^
 nnoremap L g_
 vnoremap L g_
 
-" Quit all windows without save
-nnoremap QQ :qa<cr>
-" Quit and save all windows
-nnoremap QW :wqa<cr>
+" " Quit all windows without save
+" nnoremap QQ :qa<cr>
+" " Quit and save all windows
+" nnoremap QW :wqa<cr>
 
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
@@ -196,9 +196,12 @@ vnoremap <leader>y "+y
 
 " Quickfix window
 nnoremap <silent> <leader>k :Make %:S<cr>
-nnoremap <silent> <expr> <leader>c <SID>toggle_qf() == 0 ? ":copen\<cr>" : ":cclose\<cr>"
-nnoremap <silent> <expr> <leader>l <SID>toggle_qf() == 0 ? ":lopen\<cr>" : ":lclose\<cr>"
-nnoremap <silent> <expr> <leader>q <SID>is_qf_on()[0] ? (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<cr>") : ''
+" Toggle quickfix window
+nnoremap <silent> <expr> <leader>c <SID>qf_stats()[0] ? 
+			\ (<SID>is_qf_loc() ? ":lclose\<bar>:copen\<cr>" : ":cclose\<cr>") : ":copen\<cr>"
+nnoremap <silent> <expr> <leader>l <SID>qf_stats()[0] ? 
+			\ (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<bar>:lopen\<cr>") : ":lopen\<cr>"
+nnoremap <silent> <expr> <leader>q <SID>qf_stats()[0] ? (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<cr>") : ''
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
@@ -214,7 +217,6 @@ command! -nargs=+ -complete=file_in_path -bar Make call <SID>custom_make('c', <f
 command! -nargs=+ -complete=file_in_path -bar LMake call <SID>custom_make('l', <f-args>)
 
 " Like ':g/', but with results in local quickfix window
-" command! -nargs=1 -bang Vimgrep execute "vimgrep" . <bang> . " /" . <q-args> . "/ %"
 command! -nargs=1 -bar Gbar lgetexpr <SID>g_bar_search(<f-args>)
 
 " Dirvish modes
@@ -233,22 +235,19 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 
 " --- Functions ---
 
-" TODO: It don't look for situations when there is two quickfix windows open, but I think that it handles
-function! s:is_qf_on() abort
+" TODO: It don't look for situations when there is two quickfix windows open, but I think that it handles those situations
+function! s:qf_stats() abort
 	for window in gettabinfo('%')[0].windows
 		if getwininfo(window)[0].quickfix
 			return [1, getwininfo(window)[0].loclist]
 		endif
 	endfor
+	" is_qf_on, is_qf_loc
 	return [0, 0]
 endfunction
 
 function! s:is_qf_loc() abort
-	return s:is_qf_on()[1]
-endfunction
-
-function! s:toggle_qf() abort
-	return s:is_qf_on()[0]
+	return s:qf_stats()[1]
 endfunction
 
 function! s:g_bar_search(...) abort
@@ -261,7 +260,6 @@ endfunction
 
 " [lc]getexpr pass the result of system() through [global] 'errorformat'
 " :make recive more args
-" TODO: Move to runtime
 function! s:custom_make(mode, ...) abort
 	let sav_errorformat = &l:errorformat
 	let &g:errorformat = &l:errorformat
@@ -353,6 +351,8 @@ augroup END
 autocmd goosebumps FileType python inoremap <buffer> ; :
 autocmd goosebumps FileType java,c nnoremap <buffer> <leader><C-k> :call <SID>run_code()<cr>
 autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> l ":" . v:count . (<SID>is_qf_loc() ? "lnewer\<cr>" : "cnewer\<cr>")
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> h ":" . v:count . (<SID>is_qf_loc() ? "lolder\<cr>" : "colder\<cr>")
 
 " This fucking shit again
 " autocmd goosebumps FileType * setlocaltextwidth=0
