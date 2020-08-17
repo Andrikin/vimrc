@@ -196,9 +196,9 @@ vnoremap <leader>y "+y
 
 " Quickfix window
 nnoremap <silent> <leader>k :Make %:S<cr>
-nnoremap <silent> <expr> <leader>q <SID>is_qf_loc() == 1 ? ":lclose\<cr>" : ":cclose\<cr>"
 nnoremap <silent> <expr> <leader>c <SID>toggle_qf() == 0 ? ":copen\<cr>" : ":cclose\<cr>"
 nnoremap <silent> <expr> <leader>l <SID>toggle_qf() == 0 ? ":lopen\<cr>" : ":lclose\<cr>"
+nnoremap <silent> <expr> <leader>q <SID>is_qf_on()[0] ? (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<cr>") : ''
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
@@ -233,26 +233,29 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 
 " --- Functions ---
 
-function! s:is_qf_loc() abort
-	let qf_win = s:is_qf_on()
-	" return !empty(getloclist(qf_win[1]))
-	let is_loc = 0
-	if qf_win[0]
-		let is_loc = !empty(getloclist(qf_win[1]))
-	endif
-	return is_loc
-endfunction
+" function! s:is_qf_on() abort
+" 	let is_on = 0
+" 	let nr_qf = 0
+" 	for window in range(1, winnr('$'))
+" 		if getwinvar(window, '&filetype') == 'qf'
+" 			let [is_on, nr_qf] = [1, window] 
+" 			break
+" 		endif
+" 	endfor
+" 	return [is_on, nr_qf]
+" endfunction
 
 function! s:is_qf_on() abort
-	let is_on = 0
-	let nr_qf = 0
-	for window in range(1, winnr('$'))
-		if getwinvar(window, '&filetype') == 'qf'
-			let [is_on, nr_qf] = [1, window] 
-			break
+	for window in gettabinfo('%')[0].windows
+		if getwininfo(window)[0].quickfix
+			return [1, getwininfo(window)[0].loclist]
 		endif
 	endfor
-	return [is_on, nr_qf]
+	return [0, 0]
+endfunction
+
+function! s:is_qf_loc() abort
+	return s:is_qf_on()[1]
 endfunction
 
 function! s:toggle_qf() abort
@@ -393,6 +396,6 @@ autocmd goosebumps FileType java compiler java
 autocmd goosebumps FileType css compiler csslint
 " autocmd goosebumps FileType javascript compiler
 
-" Open quickfix window after :make (:cwindow will open if there is an error message)
+" Open quickfix window automaticaly
 autocmd goosebumps QuickFixCmdPost [^l]* ++nested cwindow
 autocmd goosebumps QuickFixCmdPost l* ++nested lwindow
