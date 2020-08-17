@@ -106,6 +106,12 @@ let g:Hexokinase_highlighters = ['backgroundfull']
 " --- Emmet ---
 let g:user_emmet_install_global = 0
 
+" --- Traces ---
+let g:traces_num_range_preview = 1
+
+" --- UndoTree ---
+let g:undotree_WindowLayout = 2
+
 " Dirvish 'path navigator'
 let g:loaded_netrwPlugin = 1
 command! -nargs=? -complete=dir Explore Dirvish <args>
@@ -138,6 +144,7 @@ cmap <esc>[1;5D <c-left>
 cmap <esc>[1;5C <c-right>
 
 nnoremap <backspace> X
+nnoremap ' `
 
 " matchit plugin
 nmap <space> <plug>(MatchitNormalForward)
@@ -147,7 +154,7 @@ xmap <space> <plug>(MatchitVisualForward)
 inoremap jj <esc>
 vnoremap vv <esc>
 
-" Caso queira, utilizar :stop
+" Setting <c-z> for something different than :stop
 nnoremap <c-z> ,
 
 " Configuração para digitação rápida
@@ -157,32 +164,27 @@ inoremap (( ()<left>
 inoremap {{ {}<left>
 inoremap [[ []<left>
 
-" Configuração troca de guias
+" Tab for tabs
 nnoremap <tab> gt
 nnoremap <s-tab> gT
 
 " Yank to end of line
 nnoremap Y yg_
 
-" Remapeando ` (move cursor to column)
-nnoremap ' `
-
-" Configuração para PageUp PageDown (half screen)
+" Half PageUp/PageDown
 nnoremap K <c-u>
 vnoremap K <c-u>
 nnoremap J <c-d>
 vnoremap J <c-d>
-
-" Final da linha/início da linha (encontra o primeiro/último caracter)
+" Move to first/last character
 nnoremap H ^
 vnoremap H ^
 nnoremap L g_
 vnoremap L g_
 
-" Sair de todos os arquivos sem salvar
+" Quit all windows without save
 nnoremap QQ :qa<cr>
-
-" Sair de todos os arquivos, salvando todos
+" Quit and save all windows
 nnoremap QW :wqa<cr>
 
 " --- Cmdline ---
@@ -198,20 +200,17 @@ nnoremap <silent> <leader>so :source $MYVIMRC<cr>
 " :mksession
 nnoremap <silent> <leader>ss :call <SID>save_session()<cr>
 
-" Colar e copiar do clipboard ("* -> selection register, "+ -> primary register)
+" Copy and paste from clipboard (* -> selection register/+ -> primary register)
 nnoremap <leader>v "+P
 vnoremap <leader>c "+y
 
 " Quickfix window
 nnoremap <silent> <leader>k :Make %:S<cr>
-nnoremap <silent> <leader>cc :cclose<cr>
-nnoremap <silent> <leader>co :copen<cr>
+nnoremap <silent> <expr> <leader>qq <SID>is_loc_window() == 1 ? ":lclose\<cr>" : ":cclose\<cr>"
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
 
-" Quicksearch
-" nnoremap <leader>/ :g/
 " cnoremap <expr> <cr> <SID>cmd_enter()
 
 " --- Command's ---
@@ -221,6 +220,10 @@ command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr <SID>custom_grep(<f-
 command! -nargs=+ -complete=file_in_path -bar LGrep lgetexpr <SID>custom_grep(<f-args>)
 command! -nargs=+ -complete=file_in_path -bar Make call <SID>custom_make('c', <f-args>) 
 command! -nargs=+ -complete=file_in_path -bar LMake call <SID>custom_make('l', <f-args>)
+
+" Like ':g/', but with results in local quickfix window
+" command! -nargs=1 -bang Vimgrep execute "vimgrep" . <bang> . " /" . <q-args> . "/ %"
+command! -nargs=1 -bar Gbar lgetexpr <SID>g_bar_search(<f-args>)
 
 " --- Abbreviations ---
 
@@ -232,6 +235,14 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 " --- Plug's ---
 
 " --- Functions ---
+
+function! s:is_loc_window() abort
+	return !empty(getloclist(0))
+endfunction
+
+function! s:g_bar_search(...) abort
+	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))] + [expandcmd('%')], ' '))
+endfunction
 
 function! s:custom_grep(...) abort
 	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
