@@ -33,7 +33,7 @@ set hlsearch
 set noautochdir
 set scrolloff=999
 set lazyredraw
-set backspace=2
+set backspace=indent,eol,start
 set splitbelow
 set helpheight=60
 
@@ -49,7 +49,6 @@ set sessionoptions-=options
 set encoding=utf-8
 set autoread
 set tabpagemax=50
-set textwidth=0
 set wildmenu
 set shell=/bin/bash
 set shellpipe=2>&1\|\ tee
@@ -63,6 +62,11 @@ set noshowmode
 "  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
 "  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
 set termguicolors
+
+" NeoVim
+if v:progname == 'nvim'
+	set guicursor=
+endif
 
 " --- Let Configurations ---
 
@@ -115,7 +119,7 @@ let g:undotree_SetFocusWhenToggle = 1
 " --- Dirvish ---
 let g:loaded_netrwPlugin = 1
 
-let mapleader = ","
+let mapleader = '\'
 
 " --- Key maps ---
 
@@ -123,6 +127,10 @@ let mapleader = ","
 " so that you can undo CTRL-U after inserting a line break.
 " Revert with ":iunmap <C-U>". -> from defaults.vim
 inoremap <c-u> <c-g>u<c-u>
+
+" " Use sane regexes.
+" nnoremap / /\v
+" vnoremap / /\v
 
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
@@ -155,10 +163,6 @@ inoremap (( ()<left>
 inoremap {{ {}<left>
 inoremap [[ []<left>
 
-" Tab for tabs
-nnoremap <tab> gt
-nnoremap <s-tab> gT
-
 " Yank to end of line
 nnoremap Y yg_
 
@@ -173,19 +177,20 @@ vnoremap H ^
 nnoremap L g_
 vnoremap L g_
 
-" " Quit all windows without save
-" nnoremap QQ :qa<cr>
-" " Quit and save all windows
-" nnoremap QW :wqa<cr>
-
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
 
 " --- Mapleader Commands ---
+"  Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
 
 " $MYVIMRC
-nnoremap <silent> <leader>r :tabedit $MYVIMRC<cr>
-nnoremap <silent> <leader>so :source $MYVIMRC<cr>
+if v:progname == 'vim'
+	nnoremap <silent> <leader>r :tabedit $MYVIMRC<cr>
+	nnoremap <silent> <leader>so :source $MYVIMRC<cr>
+else
+	nnoremap <silent> <leader>r :tabedit /home/andre/.vim/vimrc<cr>
+	nnoremap <silent> <leader>so :source /home/andre/.vim/vimrc<cr>
+endif
 
 " :mksession
 nnoremap <silent> <leader>ss :call <SID>save_session()<cr>
@@ -194,8 +199,9 @@ nnoremap <silent> <leader>ss :call <SID>save_session()<cr>
 nnoremap <leader>p "+P
 vnoremap <leader>y "+y
 
-" Quickfix window
+" --- Quickfix window ---
 nnoremap <silent> <leader>k :Make %:S<cr>
+
 " Toggle quickfix window
 nnoremap <silent> <expr> <leader>c <SID>qf_stats()[0] ? 
 			\ (<SID>is_qf_loc() ? ":lclose\<bar>:copen\<cr>" : ":cclose\<cr>") : ":copen\<cr>"
@@ -237,7 +243,7 @@ cnoreabbrev <expr> lmake (getcmdtype() ==# ':' && getcmdline() ==# 'lmake') ? 'L
 
 " TODO: It don't look for situations when there is two quickfix windows open, but I think that it handles those situations
 function! s:qf_stats() abort
-	for window in gettabinfo('%')[0].windows
+	for window in gettabinfo(tabpagenr())[0].windows
 		if getwininfo(window)[0].quickfix
 			return [1, getwininfo(window)[0].loclist]
 		endif
@@ -250,12 +256,26 @@ function! s:is_qf_loc() abort
 	return s:qf_stats()[1]
 endfunction
 
+function! s:set_qf_win_height() abort
+	let stats = s:qf_stats()
+	let lnum = stats[0] ? len(stats[1] ? getloclist(0) : getqflist()) : 0
+	execute "resize " min([10, max([1, lnum])])
+endfunction
+
 function! s:g_bar_search(...) abort
-	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))] + [expandcmd('%')], ' '))
+	if v:progname == 'vim'
+		return system(join([&grepprg] + [expandcmd(join(a:000, ' '))] + [expandcmd('%')], ' '))
+	else
+		return system(join([&grepprg] + [expand(join(a:000, ' '))] + [expand('%')], ' '))
+	endif
 endfunction
 
 function! s:custom_grep(...) abort
-	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
+	if v:progname == 'vim'
+		return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
+	else
+		return system(join([&grepprg] + [expand(join(a:000, ' '))], ' '))
+	endif
 endfunction
 
 " [lc]getexpr pass the result of system() through [global] 'errorformat'
@@ -264,9 +284,17 @@ function! s:custom_make(mode, ...) abort
 	let sav_errorformat = &l:errorformat
 	let &g:errorformat = &l:errorformat
 	if a:mode ==# 'c'
-		cgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
+		if v:progname == 'vim'
+			cgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
+		else
+			cgetexpr system(join([&makeprg] + [expand(join(a:000, ' '))], ' '))
+		endif
 	elseif a:mode ==# 'l'
-		lgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
+		if v:progname == 'vim'
+			lgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
+		else
+			lgetexpr system(join([&makeprg] + [expand(join(a:000, ' '))], ' '))
+		endif
 	else
 		return ''
 	endif
@@ -291,37 +319,26 @@ function! s:clear_bufs() abort
 	endfor
 endfunction
 
-" TODO: Make it better
-function! s:save_session() abort
-	let answer = confirm("Gostaria de SALVAR esta sessão ou ABRIR a anterior?", "Salvar\nAbrir Anterior", 2)
-	if answer == 1 
-		call s:clear_bufs()
-		silent !rm ~/.vim/vimsessao.vim
-		silent mksession ~/.vim/vimsessao.vim
-		wall
-		" redraw!
-		echom "Sessão e arquivos salvos com Sucesso!"
-	else
-		if filereadable("/home/andre/.vim/vimsessao.vim")
-			silent source ~/.vim/vimsessao.vim
-			" redraw!
-			echom "Sessão restaurada com Sucesso!"
-		else
-			echoerr "Arquivo ~/.vim/vimsessao.vim não existe! Criando arquivo vimsessao.vim"
-			silent mksession ~/.vim/vimsessao.vim
-			echohl MoreMsg | echom "Arquivo criado com sucesso!" | echohl None
-		endif
-	endif
-endfunction
-
 " Run C, Java code
 " TODO: Make it better
 function! s:run_code() abort
-	let file = expand("%:e")
+	if v:progname == 'vim'
+		let file = expandcmd("%:e")
+	else
+		let file = expand("%:e")
+	endif
 	if file ==? "java"
-		lgetexpr system('java ' . expand('%:t:r'))
+		if v:progname == 'vim'
+			lgetexpr system('java ' . expandcmd('%:t:r'))
+		else
+			lgetexpr system('java ' . expand('%:t:r'))
+		endif
 	elseif file ==? "c"
-		lgetexpr system('tcc -run ' . expand('%:t'))
+		if v:progname == 'vim'
+			lgetexpr system('tcc -run ' . expandcmd('%:t'))
+		else
+			lgetexpr system('tcc -run ' . expand('%:t'))
+		endif
 	endif
 endfunction
 
@@ -335,7 +352,11 @@ function! LightlineReadonly() abort
 endfunction
 
 function! LightlineFilename() abort
-	let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+	if v:progname == 'vim'
+		let filename = expandcmd('%:t') !=# '' ? expandcmd('%:t') : '[No Name]'
+	else
+		let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+	endif
 	let modified = &modified ? ' +' : ''
 	return filename . modified 
 endfunction
@@ -354,13 +375,12 @@ autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
 autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> l ":" . v:count . (<SID>is_qf_loc() ? "lnewer\<cr>" : "cnewer\<cr>")
 autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> h ":" . v:count . (<SID>is_qf_loc() ? "lolder\<cr>" : "colder\<cr>")
 
-" This fucking shit again
-" autocmd goosebumps FileType * setlocaltextwidth=0
+autocmd goosebumps FileType text setlocal textwidth=0
 
-" Match pair para $MYVIMRC
+" Match pair for $MYVIMRC
 autocmd goosebumps FileType html,vim setlocal mps+=<:>
 
-" Configuração para comentstring [plugin commentary.vim]
+" Comentary.vim configurations
 autocmd goosebumps FileType sh,bash setlocal commentstring=#\ %s
 autocmd goosebumps FileType c setlocal commentstring=/*\ %s\ */
 autocmd goosebumps FileType java setlocal commentstring=//\ %s
@@ -369,7 +389,7 @@ autocmd goosebumps FileType vim setlocal commentstring=\"\ %s
 " Compilar Suckless config - utilizar escape sequence para pipeline nos comandos passados pelo VIM
 autocmd goosebumps BufWritePost config.h :!sudo make clean install
 
-" Ao entrar no modo Insert, trocar o background da linha
+" When enter/exit Insert Mode, change line background color
 autocmd goosebumps InsertEnter * setlocal cursorline
 autocmd goosebumps InsertLeave * setlocal nocursorline
 
@@ -388,3 +408,4 @@ autocmd goosebumps FileType css compiler csslint
 " Open quickfix window automaticaly
 autocmd goosebumps QuickFixCmdPost [^l]* ++nested cwindow
 autocmd goosebumps QuickFixCmdPost l* ++nested lwindow
+autocmd goosebumps FileType qf call <SID>set_qf_win_height()
