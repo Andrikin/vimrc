@@ -64,7 +64,7 @@ set noshowmode
 set termguicolors
 
 " NeoVim
-if v:progname == 'nvim'
+if has('nvim')
 	set guicursor=
 endif
 
@@ -184,7 +184,7 @@ cmap <c-l> <plug>CapsLockToggle
 "  Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
 
 " $MYVIMRC
-if v:progname == 'vim'
+if !has('nvim')
 	nnoremap <silent> <leader>r :tabedit $MYVIMRC<cr>
 	nnoremap <silent> <leader>so :source $MYVIMRC<cr>
 else
@@ -263,19 +263,11 @@ function! s:set_qf_win_height() abort
 endfunction
 
 function! s:g_bar_search(...) abort
-	if v:progname == 'vim'
-		return system(join([&grepprg] + [expandcmd(join(a:000, ' '))] + [expandcmd('%')], ' '))
-	else
-		return system(join([&grepprg] + [expand(join(a:000, ' '))] + [expand('%')], ' '))
-	endif
+	return system(join([&grepprg] + [shellescape(expand(join(a:000, ' ')))] + [shellescape(expand('%'))], ' '))
 endfunction
 
 function! s:custom_grep(...) abort
-	if v:progname == 'vim'
-		return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
-	else
-		return system(join([&grepprg] + [expand(join(a:000, ' '))], ' '))
-	endif
+	return system(join([&grepprg] + [shellescape(expand(join(a:000, ' ')))], ' '))
 endfunction
 
 " [lc]getexpr pass the result of system() through [global] 'errorformat'
@@ -284,17 +276,9 @@ function! s:custom_make(mode, ...) abort
 	let sav_errorformat = &l:errorformat
 	let &g:errorformat = &l:errorformat
 	if a:mode ==# 'c'
-		if v:progname == 'vim'
-			cgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
-		else
-			cgetexpr system(join([&makeprg] + [expand(join(a:000, ' '))], ' '))
-		endif
+		cgetexpr system(join([&makeprg] + [shellescape(expand(join(a:000, ' ')))], ' '))
 	elseif a:mode ==# 'l'
-		if v:progname == 'vim'
-			lgetexpr system(join([&makeprg] + [expandcmd(join(a:000, ' '))], ' '))
-		else
-			lgetexpr system(join([&makeprg] + [expand(join(a:000, ' '))], ' '))
-		endif
+		lgetexpr system(join([&makeprg] + [shellescape(expand(join(a:000, ' ')))], ' '))
 	else
 		return ''
 	endif
@@ -322,23 +306,11 @@ endfunction
 " Run C, Java code
 " TODO: Make it better
 function! s:run_code() abort
-	if v:progname == 'vim'
-		let file = expandcmd("%:e")
-	else
-		let file = expand("%:e")
-	endif
+	let file = shellescape(expand("%:e"))
 	if file ==? "java"
-		if v:progname == 'vim'
-			lgetexpr system('java ' . expandcmd('%:t:r'))
-		else
-			lgetexpr system('java ' . expand('%:t:r'))
-		endif
+		lgetexpr system('java ' . shellescape(expand("%:t:r")))
 	elseif file ==? "c"
-		if v:progname == 'vim'
-			lgetexpr system('tcc -run ' . expandcmd('%:t'))
-		else
-			lgetexpr system('tcc -run ' . expand('%:t'))
-		endif
+		lgetexpr system('tcc -run ' . shellescape(expand("%:t")))
 	endif
 endfunction
 
@@ -352,11 +324,7 @@ function! LightlineReadonly() abort
 endfunction
 
 function! LightlineFilename() abort
-	if v:progname == 'vim'
-		let filename = expandcmd('%:t') !=# '' ? expandcmd('%:t') : '[No Name]'
-	else
-		let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
-	endif
+	let filename = expand("%:t") !=# '' ? expand("%:t") : '[No Name]'
 	let modified = &modified ? ' +' : ''
 	return filename . modified 
 endfunction
