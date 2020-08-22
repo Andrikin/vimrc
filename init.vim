@@ -2,6 +2,7 @@
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 " Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
+" TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list
 
 " plugin -> verify $RUNTIMEPATH/ftplugin for files
 " indent -> verify $RUNTIMEPATH/indent for files
@@ -52,6 +53,11 @@ set tabpagemax=50
 set wildmenu
 set shell=/bin/bash
 set shellpipe=2>&1\|\ tee
+" Fast completion
+set complete-=t
+set title
+" Use mouse to resize windows
+set mouse=n
 
 " Statusline
 set laststatus=2 
@@ -124,6 +130,9 @@ let mapleader = '\'
 " Revert with ":iunmap <C-U>". -> from defaults.vim
 inoremap <c-u> <c-g>u<c-u>
 
+" Mapping ctrl-j for ctrl-m
+inoremap <c-j> <c-m>
+
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
 nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
@@ -185,11 +194,9 @@ vnoremap <leader>y "+y
 nnoremap <silent> <leader>k :make %:S<cr>
 
 " Toggle quickfix window
-nnoremap <silent> <expr> <leader>c <SID>qf_stats()[0] ? 
-			\ (<SID>is_qf_loc() ? ":lclose\<bar>:copen\<cr>" : ":cclose\<cr>") : ":copen\<cr>"
-nnoremap <silent> <expr> <leader>l <SID>qf_stats()[0] ? 
-			\ (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<bar>:lopen\<cr>") : ":lopen\<cr>"
-nnoremap <silent> <expr> <leader>q <SID>qf_stats()[0] ? (<SID>is_qf_loc() ? ":lclose\<cr>" : ":cclose\<cr>") : ''
+nnoremap <silent> <expr> <leader>c <SID>toggle_list('c')
+nnoremap <silent> <expr> <leader>l <SID>toggle_list('l')
+nnoremap <silent> <expr> <leader>q <SID>qf_stats()[0] ? (<SID>qf_stats()[1] ? ":lclose\<cr>" : ":cclose\<cr>") : ''
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
@@ -201,7 +208,7 @@ nnoremap <silent> <expr> <leader>t <SID>toggle_terminal()
 " --- Command's ---
 
 " Like ':g/', but with results in local quickfix window
-command! -nargs=1 -bar Gbar lgetexpr <SID>g_bar_search(<f-args>)
+command! -nargs=1 -bar Pattern lgetexpr <SID>g_bar_search(<f-args>)
 
 " Dirvish modes
 command! -nargs=? -complete=dir Sirvish belowright split | silent Dirvish <args>
@@ -214,29 +221,74 @@ command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
 
 " --- Functions ---
 
-" Toggle :terminal. Use 'i' to enter Terminal Mode. 'ctrl-\ctrl-n' to exit
-function! s:toggle_terminal() abort
-	for window in gettabinfo(tabpagenr())[0].windows
-		if getwininfo(window)[0].terminal
-			return join([':'] + [win_id2win(window)] + [" windo normal ZQ\<cr>"], '')
-		endif
-	endfor
-	return ":15split +terminal\<cr>"
+function! s:move_in_list(move) abort
+	let qf = s:qf_stats()
+	let cmd = ":" . v:count1
+	let go_back_to_qf = ":call win_gotoid(" . qf[2] . ")\<cr>"
+	if a:move == 'l'
+		let cmd .= qf[1] ? "lnewer\<cr>" : "cnewer\<cr>"
+	elseif a:move == 'h'
+		let cmd .= qf[1] ? "lolder\<cr>" : "colder\<cr>"
+	elseif a:move == 'j'
+		let cmd .= (qf[1] ? "lnext\<bar>" : "cnext\<bar>") . go_back_to_qf
+	elseif a:move == 'k'
+		let cmd .= (qf[1] ? "lprevious\<bar>" : "cprevious\<bar>") . go_back_to_qf
+	endif
+	" FIXME: Try not working
+	try
+		return cmd
+	catch /^Vim\%((\a\+)\)\=:E/
+		echomsg 'Limite da lista alcançado!'
+		return ''
+	endtry
 endfunction
 
-" TODO: It don't look for situations when there is two quickfix windows open, but I think that it handles those situations
-function! s:qf_stats() abort
+function! s:toggle_list(type) abort
+	let qf = s:qf_stats()
+	let cmd = ''
+	if a:type == 'c'
+		if qf[0]
+			let cmd = qf[1] ? ":lclose\<bar>:copen\<cr>" : ":cclose\<cr>"
+		else
+			let cmd = ":copen\<cr>"
+		endif
+	elseif a:type == 'l'
+		if qf[0]
+			let cmd = qf[1] ? ":lclose\<cr>" : ":cclose\<bar>:lopen\<cr>"
+		else
+			let cmd = ":lopen\<cr>"
+		endif
+	endif
+	return cmd
+endfunction
+
+" Toggle :terminal. Use 'i' to enter Terminal Mode. 'ctrl-\ctrl-n' to exit
+function! s:toggle_terminal() abort
+	let stats = s:t_stats()
+	if stats[0]
+		return join([':'] + [stats[1]] + [" windo normal ZQ\<cr>"], '')
+	endif
+	return ":10split +terminal\<cr>"
+endfunction
+
+function! s:t_stats() abort
 	for window in gettabinfo(tabpagenr())[0].windows
-		if getwininfo(window)[0].quickfix
-			return [1, getwininfo(window)[0].loclist]
+		if getwininfo(window)[0].terminal
+			return [1, win_id2win(window)]
 		endif
 	endfor
-	" is_qf_on, is_qf_loc
 	return [0, 0]
 endfunction
 
-function! s:is_qf_loc() abort
-	return s:qf_stats()[1]
+" INFO: It don't look for situations when there is two quickfix windows open, but I think that it handles those situations
+function! s:qf_stats() abort
+	for window in gettabinfo(tabpagenr())[0].windows
+		if getwininfo(window)[0].quickfix
+			return [1, getwininfo(window)[0].loclist, window]
+		endif
+	endfor
+	" is_qf_on, is_qf_loc, win_id
+	return [0, 0, 0]
 endfunction
 
 function! s:set_qf_win_height() abort
@@ -303,10 +355,14 @@ augroup END
 autocmd goosebumps FileType python inoremap <buffer> ; :
 autocmd goosebumps FileType java,c nnoremap <buffer> <a-k> :call <SID>run_code()<cr>
 autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
-autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> l ":" . v:count . (<SID>is_qf_loc() ? "lnewer\<cr>" : "cnewer\<cr>")
-autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> h ":" . v:count . (<SID>is_qf_loc() ? "lolder\<cr>" : "colder\<cr>")
 
-autocmd goosebumps FileType text setlocal textwidth=0
+" Quickfix maps
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> l <SID>move_in_list('l')
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> h <SID>move_in_list('h')
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> j <SID>move_in_list('j')
+autocmd goosebumps FileType qf nnoremap <expr> <silent> <buffer> k <SID>move_in_list('k')
+
+autocmd goosebumps FileType * setlocal textwidth=0
 
 " Match pair for $MYVIMRC
 autocmd goosebumps FileType html,vim setlocal mps+=<:>
@@ -341,5 +397,8 @@ autocmd goosebumps QuickFixCmdPost [^l]* ++nested cwindow
 autocmd goosebumps QuickFixCmdPost l* ++nested lwindow
 autocmd goosebumps FileType qf call <SID>set_qf_win_height()
 
-" Start :terminal in Insert Mode
-autocmd goosebumps TermOpen * startinsert
+" Remove map 'K' from Man plugin
+autocmd goosebumps FileType man nnoremap <buffer> K <c-u>
+
+" " Start :terminal in Insert Mode
+" autocmd goosebumps TermOpen * startinsert
