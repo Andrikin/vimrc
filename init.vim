@@ -196,7 +196,7 @@ nnoremap <silent> <leader>k :make %:S<cr>
 " Toggle quickfix window
 nnoremap <silent> <expr> <leader>c <SID>toggle_list('c')
 nnoremap <silent> <expr> <leader>l <SID>toggle_list('l')
-nnoremap <silent> <expr> <leader>q <SID>qf_stats()[0] ? (<SID>qf_stats()[1] ? ":lclose\<cr>" : ":cclose\<cr>") : ''
+nnoremap <silent> <expr> <leader>q <SID>quit_list()
 
 " Undotree plugin
 nnoremap <silent> <leader>u :UndotreeToggle<cr>
@@ -221,6 +221,15 @@ command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
 
 " --- Functions ---
 
+function! s:quit_list() abort
+	let qf = s:qf_stats()
+	let cmd = ''
+	if qf[0]
+		let cmd = qf[1] ? ":lclose\<cr>" : ":cclose\<cr>"
+	endif
+	return cmd
+endfunction
+
 function! s:move_in_list(move) abort
 	let qf = s:qf_stats()
 	let cmd = ":" . v:count1
@@ -235,12 +244,13 @@ function! s:move_in_list(move) abort
 		let cmd .= (qf[1] ? "lprevious\<bar>" : "cprevious\<bar>") . go_back_to_qf
 	endif
 	" FIXME: Try not working
-	try
-		return cmd
-	catch /^Vim\%((\a\+)\)\=:E/
-		echomsg 'Limite da lista alcançado!'
-		return ''
-	endtry
+	" try
+	" 	return cmd
+	" catch /^Vim\%((\a\+)\)\=:E/
+	" 	echomsg 'Limite da lista alcançado!'
+	" 	return ''
+	" endtry
+	return cmd
 endfunction
 
 function! s:toggle_list(type) abort
