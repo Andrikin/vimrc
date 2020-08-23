@@ -2,7 +2,7 @@
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 " Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
-" TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list
+" TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list, learn how to use :ls and change :buffer
 
 " plugin -> verify $RUNTIMEPATH/ftplugin for files
 " indent -> verify $RUNTIMEPATH/indent for files
@@ -117,6 +117,7 @@ let g:traces_num_range_preview = 1
 let g:undotree_WindowLayout = 2
 let g:undotree_ShortIndicators = 1
 let g:undotree_SetFocusWhenToggle = 1
+let g:undotree_DiffpanelHeight = 5
 
 " --- Dirvish ---
 let g:loaded_netrwPlugin = 1
@@ -129,43 +130,46 @@ let mapleader = '\'
 " so that you can undo CTRL-U after inserting a line break.
 " Revert with ":iunmap <C-U>". -> from defaults.vim
 inoremap <c-u> <c-g>u<c-u>
-
+nnoremap <backspace> X
+nnoremap ' `
+" Yank to end of line
+nnoremap Y yg_
 " Mapping ctrl-j for ctrl-m
 inoremap <c-j> <c-m>
+" Setting <c-z> for something different than :stop
+nnoremap <c-z> ,
+
+" Fast esc
+inoremap jj <esc>
+vnoremap vv <esc>
 
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
 nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
 
-nnoremap <backspace> X
-nnoremap ' `
-
 " matchit plugin
 nmap <space> <plug>(MatchitNormalForward)
 xmap <space> <plug>(MatchitVisualForward)
 
-" Esc rápido no Insert/Visual Mode
-inoremap jj <esc>
-vnoremap vv <esc>
-
-" Setting <c-z> for something different than :stop
-nnoremap <c-z> ,
-
-" Configuração para digitação rápida
+" Fast pair
+" TODO: Make a plugin (make a better solution)
 inoremap "" ""<left>
 inoremap '' ''<left>
 inoremap (( ()<left>
 inoremap {{ {}<left>
 inoremap [[ []<left>
-
-" Yank to end of line
-nnoremap Y yg_
+cnoremap "" ""<left>
+cnoremap '' ''<left>
+cnoremap (( ()<left>
+cnoremap {{ {}<left>
+cnoremap [[ []<left>
 
 " Half PageUp/PageDown
 nnoremap K <c-u>
 vnoremap K <c-u>
 nnoremap J <c-d>
 vnoremap J <c-d>
+
 " Move to first/last character
 nnoremap H ^
 vnoremap H ^
@@ -311,23 +315,6 @@ function! s:g_bar_search(...) abort
 	return system(join([&grepprg] + [shellescape(expand(join(a:000, ' ')))] + [shellescape(expand("%"))], ' '))
 endfunction
 
-" function! s:cmd_enter() abort
-" 	let cmd_line = getcmdline()
-" 	if cmd_line =~ '^\l\/\w*$'
-" 		return "\<cr>:p\<left>"
-" 	else
-" 		return "\<cr>"
-" 	endif
-" endfunction
-
-function! s:clear_bufs() abort
-	for id in range(1, bufnr("$")) 
-		if bufloaded(id) == 0 && buflisted(id)
-			execute "silent bdelete " . id 
-		endif
-	endfor
-endfunction
-
 " Run C, Java code
 " TODO: Make it better
 function! s:run_code() abort
@@ -338,6 +325,23 @@ function! s:run_code() abort
 		execute join('!tcc -run ' . shellescape(expand("%:t")))
 	endif
 endfunction
+
+" function! s:cmd_enter() abort
+" 	let cmd_line = getcmdline()
+" 	if cmd_line =~ '^\l\/\w*$'
+" 		return "\<cr>:p\<left>"
+" 	else
+" 		return "\<cr>"
+" 	endif
+" endfunction
+
+" function! s:clear_bufs() abort
+" 	for id in range(1, bufnr("$")) 
+" 		if bufloaded(id) == 0 && buflisted(id)
+" 			execute "silent bdelete " . id 
+" 		endif
+" 	endfor
+" endfunction
 
  " --- Lightline Funcions --- 
  function! LightlineMode() abort
