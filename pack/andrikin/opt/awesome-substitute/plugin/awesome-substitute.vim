@@ -1,8 +1,7 @@
-" substitute.vim - %s///g in another way
+" substitute.vim - %s///g automatic cmdline fill
 " Autor: André Alexandre Aguiar
 " Version: 0.1
 " Dependences: traces.vim
-" TODO: change file to andrikin folder, getline("'<", "'>"), getpos("'<"), '[ and '} get by using operatorfunc option with g@. WHO GET LIVE PREVIEW WHEN SUBSTITUING? MAKE IT WITHOUT LIVE PREVIEW!!!!!
 
 if exists("g:loaded_awesome_substitute")
   finish
@@ -12,55 +11,45 @@ let g:loaded_awesome_substitute = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:save_curpos() abort
-	return getcurpos()
+function! s:spreadtheword() abort
+	let word = expand('<cword>')
+	let cmd = ":\<c-u>'<,'>s:\\\<" . word . "\\\>\\C::g\<left>\<left>"
+	return cmd
 endfunction
 
-function! s:restore_curpos(cursorposition) abort
-	call setpos('.', a:cursorposition) 
-endfunction
-
-function! s:get_input() abort
-	return input('word: ')
-endfunction
-
-" Get word under cursor
-function! s:n_substitute(mode, input) abort
-	let tick = '`'
-	if a:mode == 'line'
-		let tick = "'"
-	endif
-	execute ":" . tick . "[," . tick . "]s:\\<" . expand("<cword>") . "\\>\\C:" . a:input . ":g"
-endfunction
-
-function! s:v_substitute(mode, input) abort
-	let tick = '`'
-	if a:mode !=# 'v' && a:mode !=# 'V'
-		return
-	elseif a:mode ==# 'V'
-		let tick = "'"
-	endif
-	execute ":" . tick . "<," . tick . ">s:\\<" . expand("<cword>") . "\\>\\C:" . a:input . ":g"
-endfunction
-
-function! s:spreadtheword(mode) abort
-	let curpos = s:save_curpos()
-	let input = s:get_input()
-	" treat mode
-	if strlen(a:mode) > 1
-		call s:n_substitute(a:mode, input)
+" Stealing idea from Tim Pope
+function! s:startthething(...) abort
+	" When first start, function call itself passing motion args
+	if !a:0
+		let s:word = expand('<cword>')
+		let &operatorfunc = matchstr(expand('<sfile>'), '[^. ]*$')
+		return 'g@'
+	elseif a:1 == 'line'
+		let cmd = ":'[,']s:\\\<" . s:word . "\\\>\\C::g\<left>\<left>"
+	elseif a:1 == 'char'
+		normal! `[v`]y
+		let s:word = getreg('0')
+		let cmd = ":%s:\\\<" . s:word . "\\\>\\C::g\<left>\<left>"
 	else
-		call s:v_substitute(a:mode, input)
+		return ''
 	endif
-	" restore cursor position
-	call s:restore_curpos(curpos)
+	" When calling 'g@', return cmd don't work. Has to use feedkeys()
+	if !feedkeys(cmd, 't')
+		return ''
+	endif
 endfunction
 
-" maps
-nnoremap <script> <buffer> <silent> <plug>AwesomeSubstitute :<c-u>set operatorfunc=<SID>spreadtheword<cr>g@
-vnoremap <script> <buffer> <silent> <plug>VAwesomeSubstitute :<c-u>call <SID>spreadtheword(visualmode())<cr>
+nnoremap <expr> <plug>(AwesomeSubstitute) <SID>startthething()
+xnoremap <expr> <plug>(AwesomeSubstitute) <SID>spreadtheword()
 
-nmap s <plug>AwesomeSubstitute
-vmap s <plug>VAwesomeSubstitute
+if !hasmapto('<plug>(AwesomeSubstitute)')
+	nmap s <plug>(AwesomeSubstitute)
+	xmap s <plug>(AwesomeSubstitute)
+	" Just in line
+	nnoremap ss :.,.s:\<<c-r><c-w>\>\C::g<left><left>
+endif
 
 let &cpo = s:save_cpo
+
+" I can call functions that returns no value, but can do something
+" xnoremap <expr> <plug>(AwesomeSubstitute) ":\<c-u>" . (<SID>get_word()) . (<SID>spreadtheword()) . "\<c-r>=<SID>set_cur_pos()\<cr>"
