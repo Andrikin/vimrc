@@ -1,41 +1,147 @@
+" Autor: André Alexandre Aguiar
+" Dependences: xtitle, xkey, bspc, xdo
+" TODO: Clear code
+
 let s:cpo_save = &cpo
 set cpo&vim
 
+" Full path of file
+let s:file = ''
+
+" ':' == 0x003a
+let s:cmd = ['xdo activate ', 
+			\'xkev -s -e 0x003a',
+			\]
+
 function! swapfile#handle_swapfile(file) abort
-	if s:detect_window(a:file)
-		call s:switch_window(a:file)
-		let v:swapchoice = 'q'
-		" call swapfile#echo_message('Switched to existing session!')
-	elseif getftime(v:swapname) < getftime(a:file)
-		call delete(v:swapname)
+	let s:file = a:file
+	if getftime(v:swapname) < getftime(s:file)
 		let v:swapchoice = 'e'
-		" call swapfile#echo_message('Old swapfile detected and deleted!')
 	else
-		let v:swapchoice = 'o'
-		" call swapfile#echo_message('Swapfile detected. Opening read-only!')
+		call s:detect_window_other_node()
+		let v:swapchoice = 'q'
+		echomsg 'Buffer already open!'
 	endif
 endfunction
 
-" Return false (0) or true (1)
-function! s:detect_window(file) abort
-	let l:id = s:get_id_window(a:file)
-	return l:id =~ '0x'
+" Get Hex value
+function! s:get_hex_char(char) abort
+	let number = char2nr(a:char)
+	return s:get_hex_number(number)
 endfunction
 
-function! s:switch_window(file) abort
-	let l:id_window = s:get_id_window(a:file)
-	call system('bspc node ' . l:id_window . ' --focus --activate')
+function! s:get_hex_number(number) abort
+	let hex = ''
+	let num = a:number
+	let to_convert = []
+	let q = 1
+	while q
+		let q = num / 16
+		let r = num % 16
+		let num = q
+		" Insert before the first item
+		call insert(to_convert, r)
+	endwhile
+	for decimal in to_convert
+		if decimal =~ '^\d$'
+			let hex_num = string(decimal)
+		elseif decimal == 10
+			let hex_num = 'A'
+		elseif decimal == 11
+			let hex_num = 'B'
+		elseif decimal == 12
+			let hex_num = 'C'
+		elseif decimal == 13
+			let hex_num = 'D'
+		elseif decimal == 14
+			let hex_num = 'E'
+		elseif decimal == 15
+			let hex_num = 'F'
+		else
+			return ''
+		endif
+		let hex .= hex_num
+	endfor
+	return hex
 endfunction
 
-function! s:get_id_window(file) abort
-	let l:id = system('for id in $(bspc query -N); do if xtitle "$id" | grep "' . fnamemodify(a:file,":t") . '.*VIM" > /dev/null 2>&1; then id_found="$id"; break; fi; done; printf "$id_found"')
-	return l:id =~ '0x' ? l:id : ''
+" Get command from string
+function! s:get_cmd_from_string(string) abort
+	let cmd_list = []
+	for c in split(a:string, '\zs')
+		if c =~ '[^#_/]'
+			call add(cmd_list, 'xkev -e 0x00' . s:get_hex_char(c))
+		elseif c =~ '[#_]'
+			call add(cmd_list, 'xkev -s -e 0x00' . s:get_hex_char(c))
+		else
+			call add(cmd_list, 'xkev -A -e 0x00' . s:get_hex_char(c))
+		endif
+	endfor
+	return cmd_list
 endfunction
 
-" function! s:echo_message(message) abort
-" 	autocmd BufWinEnter * ++once echohl ErrorMsg |
-" 				\ echom a:message |
-" 				\ echohl None
-" endfunction
+" Get all win_id of current node
+function! s:get_all_windows() abort
+	let windows = []
+	for tab in range(1, tabpagenr('$'))
+		for win_id in gettabinfo(tab)[0].windows
+			call add(windows, [tab, win_id])
+		endfor
+	endfor
+	return windows
+endfunction
+
+" Get the other win_id, because there is just one other window
+function! s:get_other_window(file) abort
+	for [tab, id] in s:get_all_windows()
+		let title = ''
+		redir => title
+		execute tab . 'tabdo ' . win_id2win(id) . 'windo echo expand("%")'
+		redir END
+		if title == a:file
+			return id
+		endif
+	endfor
+	return 0
+endfunction
+
+" Get all nodes_id
+function! s:get_all_nodes() abort
+	let nodes = split(system("bspc query -N | tr '\n' ' '"))
+	return nodes
+endfunction
+
+" Get the other node, because can exist more than one *VIM node
+function! s:get_vim_nodes() abort
+	let other_node = []
+	let nodes = s:get_all_nodes()
+	for node in nodes
+		if node != '0x0' . s:get_hex_number($WINDOWID) && system('xtitle ' . node) =~ '.*VIM\ze'
+			call add(other_node, node)
+		endif
+	endfor
+	return other_node
+endfunction
+
+" Function to search for window in injection
+function! swapfile#look_for(file) abort
+	call win_gotoid(s:get_other_window(a:file))
+endfunction
+
+" Look for the window in others nodes
+function! s:detect_window_other_node() abort
+	let others_vim = s:get_vim_nodes()
+	if others_vim == []
+		return ''
+	endif
+	for node in others_vim
+		let s:cmd[0] .= node
+		let s:cmd += s:get_cmd_from_string('call swapfile#look_for(' . "'" . s:file . "'" . ')')
+		" Return, enter
+		call add(s:cmd, 'xkev -e 0xff0a')
+		call system(join(s:cmd, ';'))
+	endfor
+	return ''
+endfunction
 
 let &cpo = s:cpo_save
