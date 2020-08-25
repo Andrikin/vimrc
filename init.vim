@@ -1,7 +1,7 @@
 " $MYVIMRC --- NeoVim ---
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
-" Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree
+" Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree, vim-highlightedyank, vim-sxhkdrc
 " TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list, learn how to use :ls and change :buffer
 
 " plugin -> verify $RUNTIMEPATH/ftplugin for files
@@ -38,7 +38,7 @@ set backspace=indent,eol,start
 set splitbelow
 set helpheight=40
 
-" Using ripgrep (copen; cfdo {cmd} | update)
+" Using ripgrep ([cf]open; [cf]do {cmd} | update)
 if executable('rg')
 	set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 else
@@ -53,20 +53,19 @@ set tabpagemax=50
 set wildmenu
 set shell=/bin/bash
 set shellpipe=2>&1\|\ tee
-" Fast completion
 set complete-=t
 set title
+set hidden
 " Use mouse to resize windows
-set mouse=n
+set mouse=nvi
 
 " Statusline
 set laststatus=2 
 set showtabline=2 
 set noshowmode 
 
-" --- True Colors ---
 "  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
-"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor) 
+"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor)
 set termguicolors
 
 " NeoVim
@@ -122,6 +121,9 @@ let g:undotree_DiffpanelHeight = 5
 " --- Dirvish ---
 let g:loaded_netrwPlugin = 1
 
+" Set python3
+let g:python3_host_prog = '/usr/local/bin/python3'
+
 let mapleader = '\'
 
 " --- Key maps ---
@@ -133,36 +135,26 @@ inoremap <c-u> <c-g>u<c-u>
 nnoremap <backspace> X
 nnoremap ' `
 " Yank to end of line
-nnoremap Y yg_
-" Mapping ctrl-j for ctrl-m
-inoremap <c-j> <c-m>
-" Setting <c-z> for something different than :stop
-nnoremap <c-z> ,
+nnoremap Y yg$
+" Disable <c-z> (:stop)
+nnoremap <c-z> <nop>
+" :terminal mappings
+tnoremap <m-[> <c-\><c-n>
 
-" Fast esc
-inoremap jj <esc>
-vnoremap vv <esc>
+" " Fast esc
+" inoremap <m-[> <esc>
+" vnoremap <m-[> <esc>
 
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
 nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
 
-" matchit plugin
-nmap <space> <plug>(MatchitNormalForward)
-xmap <space> <plug>(MatchitVisualForward)
-
 " Fast pair
-" TODO: Make a plugin (make a better solution)
 inoremap "" ""<left>
 inoremap '' ''<left>
 inoremap (( ()<left>
 inoremap {{ {}<left>
 inoremap [[ []<left>
-cnoremap "" ""<left>
-cnoremap '' ''<left>
-cnoremap (( ()<left>
-cnoremap {{ {}<left>
-cnoremap [[ []<left>
 
 " Half PageUp/PageDown
 nnoremap K <c-u>
@@ -170,11 +162,15 @@ vnoremap K <c-u>
 nnoremap J <c-d>
 vnoremap J <c-d>
 
-" Move to first/last character
-nnoremap H ^
-vnoremap H ^
-nnoremap L g_
-vnoremap L g_
+" Move to first/last character in screen line
+nnoremap H g^
+vnoremap H g^
+nnoremap L g$
+vnoremap L g$
+
+" " :bnext / :bprevious
+" nnoremap <silent> gb :bnext<cr>
+" nnoremap <silent> gB :bprevious<cr>
 
 " Vim-capslock in command line
 cmap <c-l> <plug>CapsLockToggle
@@ -183,7 +179,7 @@ cmap <c-l> <plug>CapsLockToggle
 "  Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
 
 " $MYVIMRC
-nnoremap <silent> <leader>r :tabedit $MYVIMRC<cr>
+nnoremap <silent> <leader>r :edit $MYVIMRC<cr>
 nnoremap <silent> <leader>so :source $MYVIMRC<cr>
 
 " :mksession
@@ -411,7 +407,7 @@ autocmd goosebumps QuickFixCmdPost [^l]* ++nested cwindow
 autocmd goosebumps QuickFixCmdPost l* ++nested lwindow
 autocmd goosebumps FileType qf call <SID>set_qf_win_height()
 
-" Remove map 'K' from Man plugin
+" Remove map 'K' from :Man plugin
 autocmd goosebumps FileType man nnoremap <buffer> K <c-u>
 
 " " Start :terminal in Insert Mode
