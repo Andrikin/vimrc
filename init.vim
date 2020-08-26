@@ -108,6 +108,7 @@ let g:Hexokinase_highlighters = ['backgroundfull']
 
 " --- Emmet ---
 let g:user_emmet_install_global = 0
+let g:user_emmet_leader_key = '<m-space>'
 
 " --- Traces ---
 let g:traces_num_range_preview = 1
@@ -118,7 +119,8 @@ let g:undotree_ShortIndicators = 1
 let g:undotree_SetFocusWhenToggle = 1
 let g:undotree_DiffpanelHeight = 5
 
-" --- Dirvish ---
+" --- Netrw ---
+" Disable Netrw
 let g:loaded_netrwPlugin = 1
 
 " Set python3
@@ -134,7 +136,7 @@ let mapleader = '\'
 inoremap <c-u> <c-g>u<c-u>
 nnoremap <backspace> X
 nnoremap ' `
-" Yank to end of line
+" Yank to end of sreen line
 nnoremap Y yg$
 " Disable <c-z> (:stop)
 nnoremap <c-z> <nop>
@@ -168,12 +170,8 @@ vnoremap H g^
 nnoremap L g$
 vnoremap L g$
 
-" " :bnext / :bprevious
-" nnoremap <silent> gb :bnext<cr>
-" nnoremap <silent> gB :bprevious<cr>
-
 " Vim-capslock in command line
-cmap <c-l> <plug>CapsLockToggle
+cmap <silent> <expr> <c-l> <SID>capslock_redraw()
 
 " --- Mapleader Commands ---
 "  Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
@@ -220,6 +218,17 @@ command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
 " --- Plug's ---
 
 " --- Functions ---
+
+function! s:capslock_redraw() abort
+	let cmd = "\<plug>CapsLockToggle\<c-r>="
+	let exec_redraw = "execute('redraws')"
+	if CapsLockStatusline() is ''
+		let cmd .= toupper(exec_redraw)
+	else
+		let cmd .= exec_redraw
+	endif
+	return cmd . "\<cr>"
+endfunction
 
 function! s:quit_list() abort
 	let qf = s:qf_stats()
@@ -390,9 +399,6 @@ autocmd goosebumps BufWritePost config.h :!sudo make clean install
 autocmd goosebumps InsertEnter * setlocal cursorline
 autocmd goosebumps InsertLeave * setlocal nocursorline
 
-" Refresh Command mode statusline
-autocmd goosebumps CmdlineChanged * redraws
-
 " Enable Emmet plugin just for html, css files
 autocmd goosebumps FileType html,css EmmetInstall
 
@@ -409,6 +415,3 @@ autocmd goosebumps FileType qf call <SID>set_qf_win_height()
 
 " Remove map 'K' from :Man plugin
 autocmd goosebumps FileType man nnoremap <buffer> K <c-u>
-
-" " Start :terminal in Insert Mode
-" autocmd goosebumps TermOpen * startinsert
