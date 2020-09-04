@@ -2,15 +2,13 @@
 " Autor: André Alexandre Aguiar
 " Email: andrealexandreaguiar@gmail.com
 " Dependences: ripgrep, traces.vim, [surround, comment, capslock, eunuch] tpope, emmet-vim, vim-cool, vim-hexokinase, vim-dirvish, undotree, vim-highlightedyank, vim-sxhkdrc
-" TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list, learn how to use :ls and change :buffer
+" TODO: Learn how to use vimdiff/diffing a file, learn :args and how to modify :args list, learn how to use :ls and :buffer
 
 " plugin -> verify $RUNTIMEPATH/ftplugin for files
 " indent -> verify $RUNTIMEPATH/indent for files
 filetype indent plugin on
 syntax enable
 colorscheme molokai
-
-" --- Set Configurations ---
 
 " Search recursively
 set path+=**
@@ -37,42 +35,42 @@ set lazyredraw
 set backspace=indent,eol,start
 set splitbelow
 set helpheight=40
-
-" Using ripgrep ([cf]open; [cf]do {cmd} | update)
-if executable('rg')
-	set grepprg=rg\ --vimgrep\ --smart-case\ --follow
-else
-	set grepprg=grep\ -R
-endif
-
-" Problems that can occur in vim session can be avoid by this configuration
+" Problems that can occur in vim session can be avoid using this configuration
 set sessionoptions-=options
 set encoding=utf-8
 set autoread
 set tabpagemax=50
 set wildmenu
-set shell=/bin/bash
-set shellpipe=2>&1\|\ tee
+let &g:shell='/bin/bash'
+let &g:shellpipe='2>&1| tee'
 set complete-=t
 set title
 set hidden
 " Use mouse to resize windows
 set mouse=nvi
+set undofile
+let mapleader = '\'
 
 " Statusline
 set laststatus=2 
 set showtabline=2 
 set noshowmode 
 
-"  St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
-"  Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor)
+" St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
+" Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor)
 set termguicolors
 
 " NeoVim
 set guicursor=
 set inccommand=
+let &g:fillchars='vert: '
 
-" --- Let Configurations ---
+" Using ripgrep ([cf]open; [cf]do {cmd} | update)
+if executable('rg')
+	let &g:grepprg='rg --vimgrep --smart-case --follow'
+else
+	let &g:grepprg='grep -R'
+endif
 
 " --- lightline ---
 let g:lightline = {
@@ -111,7 +109,7 @@ let g:user_emmet_install_global = 0
 let g:user_emmet_leader_key = '<m-space>'
 
 " --- Traces ---
-let g:traces_num_range_preview = 1
+" let g:traces_num_range_preview = 1
 
 " --- UndoTree ---
 let g:undotree_WindowLayout = 2
@@ -126,32 +124,28 @@ let g:loaded_netrwPlugin = 1
 " Set python3
 let g:python3_host_prog = '/usr/local/bin/python3'
 
-let mapleader = '\'
-
 " --- Key maps ---
 
-" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
+" CTRL-U in insert mode deletes a lot. Use CTRL-G u to first break undo,
 " so that you can undo CTRL-U after inserting a line break.
 " Revert with ":iunmap <C-U>". -> from defaults.vim
 inoremap <c-u> <c-g>u<c-u>
 nnoremap <backspace> X
+nnoremap <c-h> X
 nnoremap ' `
 " Yank to end of sreen line
-nnoremap Y yg$
+" g$ cursor after last character, g_ cursor on last character
+nnoremap Y yg_
 " Disable <c-z> (:stop)
 nnoremap <c-z> <nop>
 " :terminal mappings
 tnoremap <m-[> <c-\><c-n>
 
-" " Fast esc
-" inoremap <m-[> <esc>
-" vnoremap <m-[> <esc>
-
 " Using gk and gj (screen cursor up/down)
 nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
 nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
 
-" Fast pair
+" Move cursor inside pair
 inoremap "" ""<left>
 inoremap '' ''<left>
 inoremap (( ()<left>
@@ -167,14 +161,14 @@ vnoremap J <c-d>
 " Move to first/last character in screen line
 nnoremap H g^
 vnoremap H g^
-nnoremap L g$
-vnoremap L g$
+nnoremap L g_
+vnoremap L g_
 
 " Vim-capslock in command line
 cmap <silent> <expr> <c-l> <SID>capslock_redraw()
 
 " --- Mapleader Commands ---
-"  Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
+" Be aware that '\' is used as mapleader character, so conflits can occur in Insert Mode maps
 
 " $MYVIMRC
 nnoremap <silent> <leader>r :edit $MYVIMRC<cr>
@@ -190,7 +184,6 @@ vnoremap <leader>y "+y
 " --- Quickfix window ---
 " NeoVim excells about terminal jobs
 nnoremap <silent> <leader>k :make %:S<cr>
-
 " Toggle quickfix window
 nnoremap <silent> <expr> <leader>c <SID>toggle_list('c')
 nnoremap <silent> <expr> <leader>l <SID>toggle_list('l')
@@ -201,12 +194,10 @@ nnoremap <silent> <leader>u :UndotreeToggle<cr>
 
 nnoremap <silent> <expr> <leader>t <SID>toggle_terminal()
 
-" cnoremap <expr> <cr> <SID>cmd_enter()
-
 " --- Command's ---
 
 " Like ':g/', but with results in local quickfix window
-command! -nargs=1 -bar Pattern lgetexpr <SID>g_bar_search(<f-args>)
+command! -nargs=1 -bar Bar lgetexpr <SID>g_bar_search(<f-args>)
 
 " Dirvish modes
 command! -nargs=? -complete=dir Sirvish belowright split | silent Dirvish <args>
@@ -219,6 +210,7 @@ command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
 
 " --- Functions ---
 
+" Hack way to get :redraws after CapsLockToggle
 function! s:capslock_redraw() abort
 	let cmd = "\<plug>CapsLockToggle\<c-r>="
 	let exec_redraw = "execute('redraws')"
@@ -252,13 +244,6 @@ function! s:move_in_list(move) abort
 	elseif a:move == 'k'
 		let cmd .= (qf[1] ? "lprevious\<bar>" : "cprevious\<bar>") . go_back_to_qf
 	endif
-	" FIXME: Try not working
-	" try
-	" 	return cmd
-	" catch /^Vim\%((\a\+)\)\=:E/
-	" 	echomsg 'Limite da lista alcançado!'
-	" 	return ''
-	" endtry
 	return cmd
 endfunction
 
@@ -331,23 +316,6 @@ function! s:run_code() abort
 	endif
 endfunction
 
-" function! s:cmd_enter() abort
-" 	let cmd_line = getcmdline()
-" 	if cmd_line =~ '^\l\/\w*$'
-" 		return "\<cr>:p\<left>"
-" 	else
-" 		return "\<cr>"
-" 	endif
-" endfunction
-
-" function! s:clear_bufs() abort
-" 	for id in range(1, bufnr("$")) 
-" 		if bufloaded(id) == 0 && buflisted(id)
-" 			execute "silent bdelete " . id 
-" 		endif
-" 	endfor
-" endfunction
-
  " --- Lightline Funcions --- 
  function! LightlineMode() abort
  	return lightline#mode() . ' ' . CapsLockStatusline()
@@ -364,7 +332,7 @@ function! LightlineFilename() abort
 endfunction
 
 " --- Autocommands ---
-"  for map's use <buffer>, for set's use setlocal
+" for map's use <buffer>, for set's use setlocal
 
 augroup goosebumps
 	autocmd!
@@ -372,7 +340,7 @@ augroup END
 
 " Atalhos para arquivos específicos
 autocmd goosebumps FileType python inoremap <buffer> ; :
-autocmd goosebumps FileType java,c nnoremap <buffer> <a-k> :call <SID>run_code()<cr>
+autocmd goosebumps FileType java,c nnoremap <buffer> <m-k> :call <SID>run_code()<cr>
 autocmd goosebumps FileType html,vim inoremap <buffer> << <><left>
 
 " Quickfix maps
@@ -415,3 +383,6 @@ autocmd goosebumps FileType qf call <SID>set_qf_win_height()
 
 " Remove map 'K' from :Man plugin
 autocmd goosebumps FileType man nnoremap <buffer> K <c-u>
+
+" Highlight yanked text - NeoVim 0.5.0 nightly
+autocmd goosebumps TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=300}
