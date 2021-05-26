@@ -34,6 +34,7 @@ set scrolloff=999
 set lazyredraw
 set backspace=indent,eol,start
 set splitbelow
+set splitright
 set helpheight=40
 " Problems that can occur in vim session can be avoid using this configuration
 set sessionoptions-=options
@@ -42,13 +43,17 @@ set autoread
 set tabpagemax=50
 set wildmenu
 let &g:shell='/bin/bash'
-let &g:shellpipe='2>&1| tee'
+let &g:shellpipe='2>&1 | tee'
 set complete-=t
 set title
 set hidden
-" Use mouse to resize windows
 set mouse=nvi
+set undodir=~/.config/nvim/undodir
 set undofile
+set noswapfile
+" set linebreak
+" set wrapmargin=5
+let &g:textwidth=0
 let mapleader = '\'
 
 " Statusline
@@ -56,8 +61,7 @@ set laststatus=2
 set showtabline=2 
 set noshowmode 
 
-" St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre.
-" Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor)
+" St tem um problema com o cursor. Ele não muda de acordo com as cores da fonte que ele está sobre. Dessa forma, com o patch de Jules Maselbas (https://git.suckless.org/st/commit/5535c1f04c665c05faff2a65d5558246b7748d49.html), é possível obter o cursor com a cor do texto (com truecolor)
 set termguicolors
 
 " NeoVim
@@ -133,8 +137,11 @@ inoremap <c-u> <c-g>u<c-u>
 nnoremap <backspace> X
 nnoremap <c-h> X
 nnoremap ' `
+" Fix & command. Redo :substitute command
+nnoremap & :&&<cr>
+xnoremap & :&&<cr>
 " Yank to end of sreen line
-" g$ cursor after last character, g_ cursor on last character
+" g$ cursor after last character, g_ cursor at last character
 nnoremap Y yg_
 " Disable <c-z> (:stop)
 nnoremap <c-z> <nop>
@@ -161,8 +168,8 @@ vnoremap J <c-d>
 " Move to first/last character in screen line
 nnoremap H g^
 vnoremap H g^
-nnoremap L g_
-vnoremap L g_
+nnoremap L g$
+vnoremap L g$
 
 " Vim-capslock in command line
 cmap <silent> <expr> <c-l> <SID>capslock_redraw()
@@ -203,6 +210,9 @@ command! -nargs=1 -bar Bar lgetexpr <SID>g_bar_search(<f-args>)
 command! -nargs=? -complete=dir Sirvish belowright split | silent Dirvish <args>
 command! -nargs=? -complete=dir Virvish leftabove vsplit | silent Dirvish <args>
 command! -nargs=? -complete=dir Tirvish tabedit | silent Dirvish <args>
+
+" Command binary to hex
+command! HexEditor %!xxd
 
 " --- Abbreviations ---
 
